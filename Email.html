@@ -578,7 +578,8 @@
             z-index: 1;
             margin-top: 4rem;
             margin-bottom: 8rem;
-            width: 20rem;
+            min-width: 20rem;
+            width: fit-content;
             height: 4.5rem;
             border: 0.15rem solid rgba(0, 255, 200, 0.5);
             border-radius: 5rem;
@@ -590,10 +591,11 @@
             letter-spacing: 0.5rem;
             text-transform: uppercase;
             cursor: none;
-            transition: all 0.3s ease;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(4px);
-            overflow: hidden;
+            overflow: visible;
             white-space: nowrap;
+            padding: 0 2.5rem;
         }
 
         .send-btn:hover {
@@ -683,11 +685,10 @@
     <div class="page-title" data-text="Interstellar Mail">Interstellar Mail</div>
     <div class="page-subtitle">// 星际通讯终端 //</div>
 
-    <form id="mailForm" action="https://formsubmit.co/3040791779@qq.com" method="POST" autocomplete="off">
+    <form id="mailForm" autocomplete="off">
         <input type="hidden" name="_subject" value="星际通讯 - Interstellar Mail" />
         <input type="hidden" name="_captcha" value="false" />
         <input type="hidden" name="_template" value="table" />
-        <input type="hidden" name="_next" value="blackhole.html" />
         <input type="text" name="_honey" style="display:none" autocomplete="off" />
 
     <div class="row" data_text="Your Name // 你的名字">
@@ -895,11 +896,12 @@
     });
 
     /**
-     * 表单提交验证
-     * 检查所有字段是否填写完成，未填写则高亮提示
-     * 验证通过后设置跳转标记，用于blackhole.html显示成功弹窗
+     * 表单提交验证 + 成功后自动跳转
+     * 验证通过后：设置标记 → fetch发送表单 → 成功才跳转blackhole.html
      */
     document.getElementById('mailForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
         const inputs = document.querySelectorAll('.row_input');
         let allFinished = true;
         inputs.forEach(input => {
@@ -912,22 +914,51 @@
             }
         });
 
-        if (!allFinished) {
-            e.preventDefault();
-            return;
-        }
-
-        /**
-         * 设置表单提交标记
-         * blackhole.html会检测此标记来决定是否显示成功弹窗
-         */
-        sessionStorage.setItem('fromEmailSubmit', 'true');
+        if (!allFinished) return;
 
         const btn = document.querySelector('.send-btn');
-        btn.textContent = '⚡ SEND...';
-        btn.style.letterSpacing = '0.2rem';
+        btn.textContent = '⚡ TRANSMITTING...';
+        btn.style.letterSpacing = '0.15rem';
         btn.style.background = 'rgba(0, 255, 200, 0.2)';
         btn.style.boxShadow = '0 0 30px rgba(0, 255, 200, 0.4)';
+        btn.disabled = true;
+
+        sessionStorage.setItem('fromEmailSubmit', 'true');
+
+        const formData = new FormData(this);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        fetch('https://formsubmit.co/ajax/3040791779@qq.com', {
+            method: 'POST',
+            body: formData,
+            signal: controller.signal
+        })
+        .then(response => {
+            clearTimeout(timeoutId);
+            if (response.ok || response.type === 'opaque') {
+                window.location.href = 'blackhole.html';
+            } else {
+                throw new Error(`HTTP ${response.status}`);
+            }
+        })
+        .catch(error => {
+            clearTimeout(timeoutId);
+            console.error('发送异常:', error);
+            btn.textContent = '❌ FAILED - RETRY';
+            btn.style.letterSpacing = '0.2rem';
+            btn.style.background = 'rgba(255, 80, 80, 0.15)';
+            btn.style.borderColor = 'rgba(255, 100, 100, 0.5)';
+            btn.disabled = false;
+            setTimeout(() => {
+                btn.textContent = 'Transmit';
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.boxShadow = '';
+                btn.style.letterSpacing = '';
+            }, 2500);
+        });
     });
 
     window.addEventListener("load", () => {
