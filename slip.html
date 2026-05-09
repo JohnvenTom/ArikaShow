@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>CYBER SHOWCASE // 赛博展示柜</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
@@ -1560,33 +1563,49 @@
     const customCursor = {
         cursor: document.getElementById('customCursor'),
         lottieInstance: null,
+        animationCache: {},
         mouseX: window.innerWidth / 2,
         mouseY: window.innerHeight / 2,
         cursorX: window.innerWidth / 2,
         cursorY: window.innerHeight / 2,
-        speed: 0.15, // 软跟随速度（0-1之间，越小跟随越慢）
+        speed: 0.15,
         isActive: true,
         isDragging: false,
         isOverVideo: false,
-        videoState: 'none', // 'none', 'paused', 'playing'
+        videoState: 'none',
         currentAnimation: 'normal',
         normalAnimationPath: 'Js/system-regular-715-spinner-horizontal-dashed-circle-loop-jab.json',
         dragAnimationPath: 'Js/system-regular-715-spinner-horizontal-dashed-circle-loop-transparency.json',
         playAnimationPath: 'Js/system-regular-26-play-morph-play-pause.json',
 
         /**
-         * 初始化自定义鼠标
-         * @description 加载 Lottie 动画并绑定鼠标移动事件
+         * 预加载所有 Lottie 动画 JSON 到内存缓存
+         * 后续切换动画时直接使用缓存数据，不再发起网络请求
          */
+        preloadAnimations() {
+            const paths = [
+                this.normalAnimationPath,
+                this.dragAnimationPath,
+                this.playAnimationPath
+            ];
+            paths.forEach(path => {
+                fetch(path)
+                    .then(res => res.json())
+                    .then(data => {
+                        this.animationCache[path] = data;
+                    })
+                    .catch(() => {});
+            });
+        },
+
         init() {
-            // 检查是否为触摸设备，触摸设备不启用自定义鼠标
             if (window.matchMedia('(pointer: coarse)').matches) {
                 this.cursor.style.display = 'none';
                 document.body.style.cursor = 'auto';
                 return;
             }
 
-            // 加载默认 Lottie 动画
+            this.preloadAnimations();
             this.loadAnimation(this.normalAnimationPath);
 
             // 绑定鼠标移动事件 - 使用捕获阶段确保优先处理
@@ -1623,37 +1642,37 @@
          * @param {string} path - 动画文件路径
          */
         loadAnimation(path) {
-            // 添加切换动画类，开始淡出
             this.cursor.classList.add('switching');
 
-            // 等待淡出完成后切换动画
             setTimeout(() => {
-                // 如果已有动画实例，先销毁
                 if (this.lottieInstance) {
                     this.lottieInstance.destroy();
                 }
 
-                // 清空容器
                 this.cursor.innerHTML = '';
 
-                // 判断是否是播放动画
                 const isPlayAnimation = path === this.playAnimationPath;
+                const cachedData = this.animationCache[path];
 
-                // 加载新动画
-                this.lottieInstance = lottie.loadAnimation({
+                const config = {
                     container: this.cursor,
                     renderer: 'svg',
-                    loop: !isPlayAnimation, // 播放动画不循环
-                    autoplay: true,
-                    path: path
-                });
+                    loop: !isPlayAnimation,
+                    autoplay: true
+                };
 
-                // 如果是播放动画，设置帧范围
+                if (cachedData) {
+                    config.animationData = cachedData;
+                } else {
+                    config.path = path;
+                }
+
+                this.lottieInstance = lottie.loadAnimation(config);
+
                 if (isPlayAnimation) {
                     this.setupPlayAnimation();
                 }
 
-                // 移除切换动画类，开始淡入
                 this.cursor.classList.remove('switching');
             }, 150);
         },
