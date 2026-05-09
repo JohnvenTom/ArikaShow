@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Deep Glow</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -6262,33 +6265,27 @@
          */
         async function checkResourceCached(url) {
             try {
-                const startTime = performance.now();
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 300);
-                
-                const response = await fetch(url, {
-                    method: 'HEAD',
-                    cache: 'force-cache',
-                    mode: 'no-cors', // 避免跨域问题
-                    signal: controller.signal
+                const cached = await caches.open('asset-cache-v1').then(cache => {
+                    return cache.match(url);
+                }).catch(() => null);
+
+                if (cached) return true;
+
+                if ('connection' in navigator && navigator.connection.saveData) return true;
+
+                const testImg = new Image();
+                const timeout = new Promise(resolve => setTimeout(() => resolve(false), 50));
+                const loaded = new Promise(resolve => {
+                    testImg.onload = () => resolve(true);
+                    testImg.onerror = () => resolve(false);
+                    testImg.src = url + '?_t=' + Date.now();
                 });
-                
-                clearTimeout(timeoutId);
-                const requestTime = performance.now() - startTime;
-                
-                // 快速响应（<100ms）很可能是缓存
-                const likelyFromCache = requestTime < 100;
-                
-                console.log(`资源 ${url} 检测: 请求时间=${requestTime.toFixed(2)}ms → ${likelyFromCache ? '已缓存' : '未缓存'}`);
-                return likelyFromCache;
+
+                const result = await Promise.race([loaded, timeout]);
+                return result;
             } catch (error) {
-                // 如果出错，尝试用性能API检查
-                const entries = performance.getEntriesByType('resource');
-                const isCached = entries.some(entry => {
-                    return entry.name.includes(url.split('/').pop()) && entry.duration < 100;
-                });
-                console.log(`资源 ${url} 通过性能API检测:`, isCached ? '可能已缓存' : '未检测到');
-                return isCached;
+                console.log('资源缓存检测出错:', error);
+                return false;
             }
         }
         
