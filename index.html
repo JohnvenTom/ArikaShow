@@ -67,6 +67,10 @@
             overflow-x: hidden;
         }
         
+        body.loading-active {
+            overflow: hidden;
+        }
+        
         /* 星空背景Canvas */
         #starfield {
             position: fixed;
@@ -170,6 +174,99 @@
         #slow-scroll-text.fade-out {
             opacity: 0;
             transform: translate(-50%, -50%) scale(0.5);
+        }
+
+        .click-prompt {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 99998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        .click-prompt.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .click-prompt.fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .click-prompt-ring {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            animation: clickPromptPulse 2.5s ease-out infinite;
+        }
+
+        .click-prompt-ring-outer {
+            width: 240px;
+            height: 240px;
+            border-color: rgba(0, 212, 255, 0.15);
+            animation-delay: 0.8s;
+        }
+
+        @keyframes clickPromptPulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.2;
+            }
+            100% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+        }
+
+        .click-prompt-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            animation: clickPromptFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes clickPromptFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .click-prompt-cursor {
+            width: 36px;
+            height: 36px;
+            color: #00d4ff;
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
+            animation: clickPromptClick 2s ease-in-out infinite;
+        }
+
+        @keyframes clickPromptClick {
+            0%, 40%, 100% { transform: scale(1); }
+            50% { transform: scale(0.85); }
+            55% { transform: scale(1.05); }
+        }
+
+        .click-prompt-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.3em;
+            color: rgba(0, 212, 255, 0.8);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+            white-space: nowrap;
         }
 
         #content-particles.visible {
@@ -3479,6 +3576,18 @@
         <span>Slow<br>Scroll</span>
     </div>
 
+    <!-- 点击引导提示 - 浏览器自动播放策略要求用户交互 -->
+    <div id="click-prompt" class="click-prompt">
+        <div class="click-prompt-ring"></div>
+        <div class="click-prompt-ring click-prompt-ring-outer"></div>
+        <div class="click-prompt-content">
+            <svg class="click-prompt-cursor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M6 3l12 9-5.5 1.2L15 19l-3.5-1.5L9 14.5 6 19z"/>
+            </svg>
+            <span class="click-prompt-text">CLICK ANYWHERE</span>
+        </div>
+    </div>
+
     <!-- 主内容 -->
     <div class="main-content">
         <!-- 首页/封面 -->
@@ -4649,7 +4758,6 @@
                     (gltf) => {
                         this.model = gltf.scene;
 
-                        // 调整模型大小和位置
                         const box = new THREE.Box3().setFromObject(this.model);
                         const center = box.getCenter(new THREE.Vector3());
                         const size = box.getSize(new THREE.Vector3());
@@ -4662,8 +4770,10 @@
 
                         this.scene.add(this.model);
                         
-                        // 设置动画
                         this.setupAnimation(gltf);
+
+                        isModelLoaded = true;
+                        checkAllLoaded();
                     },
                     (progress) => {
                         // 如果是模拟加载模式，忽略真实加载进度
@@ -4687,8 +4797,9 @@
                     },
                     (error) => {
                         console.error('模型加载失败:', error);
-                        // 加载失败时显示默认几何体
                         this.createFallbackModel();
+                        isModelLoaded = true;
+                        checkAllLoaded();
                     }
                 );
             }
@@ -5709,6 +5820,8 @@
         let volumeFadeInterval = null;
         let currentTrackIndex = 0;
         let isPlaying = false;
+        let userHasInteracted = false;
+        let pendingAutoPlay = false;
 
         /**
          * 音乐列表配置
@@ -5867,9 +5980,18 @@
             if (wasPlaying || isPlaying) {
                 bgMusic.addEventListener('canplaythrough', function onCanPlay() {
                     bgMusic.removeEventListener('canplaythrough', onCanPlay);
-                    const savedVolume = getSavedVolume();
-                    fadeVolume(savedVolume, 800);
-                    bgMusic.play().catch(e => console.log('自动播放被阻止:', e));
+                    if (userHasInteracted) {
+                        const savedVolume = getSavedVolume();
+                        fadeVolume(savedVolume, 800);
+                        bgMusic.play().then(() => {
+                            isPlaying = true;
+                        }).catch(e => {
+                            console.log('切换曲目播放被阻止:', e);
+                            isPlaying = false;
+                        });
+                    } else {
+                        pendingAutoPlay = true;
+                    }
                 });
             }
 
@@ -5935,11 +6057,20 @@
                     checkAllLoaded();
                 }
                 
-                const currentVolume = getSavedVolume();
-                bgMusic.volume = 0;
-                fadeVolume(currentVolume, 1000);
-                bgMusic.play().catch(e => console.log('自动播放被阻止:', e));
-                isPlaying = true;
+                if (userHasInteracted) {
+                    const currentVolume = getSavedVolume();
+                    bgMusic.volume = 0;
+                    fadeVolume(currentVolume, 1000);
+                    bgMusic.play().then(() => {
+                        isPlaying = true;
+                    }).catch(e => {
+                        console.log('播放被阻止:', e);
+                        isPlaying = false;
+                    });
+                } else {
+                    pendingAutoPlay = true;
+                    if (vinylIcon) vinylIcon.classList.add('paused');
+                }
 
                 bgMusic.removeEventListener('canplaythrough', onCanPlay);
             });
@@ -5987,6 +6118,52 @@
                     }
                 });
             }
+
+            /**
+             * 监听用户首次交互事件
+             * 浏览器自动播放策略要求用户先与页面交互才能播放音频
+             * wheel/scroll不算作用户激活，但mousedown/pointerdown算
+             * 在用户首次有效交互后，尝试播放待播放的音乐
+             */
+            function onFirstInteraction() {
+                if (userHasInteracted) return;
+                userHasInteracted = true;
+
+                const clickPrompt = document.getElementById('click-prompt');
+                if (clickPrompt) {
+                    clickPrompt.classList.remove('visible');
+                    clickPrompt.classList.add('fade-out');
+                    setTimeout(() => {
+                        clickPrompt.remove();
+                    }, 500);
+                }
+
+                if (pendingAutoPlay && bgMusic && bgMusic.paused && isMusicLoaded) {
+                    pendingAutoPlay = false;
+                    const currentVolume = getSavedVolume();
+                    bgMusic.volume = 0;
+                    fadeVolume(currentVolume, 1000);
+                    bgMusic.play().then(() => {
+                        isPlaying = true;
+                        if (vinylIcon) vinylIcon.classList.remove('paused');
+                    }).catch(e => {
+                        console.log('首次交互后播放仍被阻止:', e);
+                        isPlaying = false;
+                    });
+                }
+
+                document.removeEventListener('click', onFirstInteraction);
+                document.removeEventListener('touchstart', onFirstInteraction);
+                document.removeEventListener('keydown', onFirstInteraction);
+                document.removeEventListener('mousedown', onFirstInteraction);
+                document.removeEventListener('pointerdown', onFirstInteraction);
+            }
+
+            document.addEventListener('click', onFirstInteraction, { once: false });
+            document.addEventListener('touchstart', onFirstInteraction, { once: false });
+            document.addEventListener('keydown', onFirstInteraction, { once: false });
+            document.addEventListener('mousedown', onFirstInteraction, { once: false });
+            document.addEventListener('pointerdown', onFirstInteraction, { once: false });
         }
 
         // ============================================
@@ -6161,9 +6338,10 @@
             }
             loaderProgress = totalProgress;
             
-            // 更新目标进度并启动动画
             targetProgress = totalProgress;
             animateProgress();
+
+            if (isInHeroSection && !isModelLoaded) return;
 
             const elapsedTime = Date.now() - loadingStartTime;
             if (totalProgress >= 100 && !isAllLoaded && elapsedTime >= MIN_LOADING_TIME) {
@@ -6185,7 +6363,8 @@
         }
         
         function completeLoading() {
-            // 淡出文字和进度
+            document.body.classList.remove('loading-active');
+
             const launchingText = document.querySelector('#loader .launching-text');
             const progressEl = document.querySelector('#loader .progress');
             const cornerTexts = document.querySelectorAll('#loader .corner-text');
@@ -6235,19 +6414,23 @@
             // 使用GSAP同时执行移动和放大
             const tl = gsap.timeline({
                 onComplete: () => {
-                    // 动画完成后打开遮罩
                     const mask = document.querySelector('.loader-mask');
                     if (mask) mask.classList.add('open');
 
-                    // 隐藏加载页面
                     setTimeout(() => {
                         const loader = document.getElementById('loader');
                         if (loader) loader.classList.add('hidden');
                     }, 600);
 
-                    // 标记预加载完成，允许显示Slow Scroll文字
                     if (typeof CircleMask !== 'undefined') {
                         CircleMask.loadingComplete = true;
+                    }
+
+                    if (!userHasInteracted && pendingAutoPlay) {
+                        setTimeout(() => {
+                            const clickPrompt = document.getElementById('click-prompt');
+                            if (clickPrompt) clickPrompt.classList.add('visible');
+                        }, 800);
                     }
                 }
             });
@@ -8923,9 +9106,8 @@
              */
             init() {
                 const container = document.querySelector('.poker-container');
-                const cardCount = 5; // 显示5张卡片
+                const cardCount = 5;
 
-                // 动态创建卡片
                 for (let i = 0; i < cardCount; i++) {
                     const project = this.projectsData[i % this.projectsData.length];
                     const card = this.createCard(project, i);
@@ -8936,13 +9118,25 @@
                 this.cards.forEach((card, index) => {
                     card.dataset.position = index;
                 });
-                // dataIndex 从 cardCount 开始，确保下一轮加载的是未在初始卡片中展示的项目
                 this.dataIndex = cardCount;
 
-                // 重新绑定指针吸附事件，确保动态创建的卡片也能被吸附
                 if (typeof pointer !== 'undefined' && pointer.rebind) {
                     pointer.rebind();
                 }
+
+                this.preloadImages();
+            },
+
+            /**
+             * 预加载所有项目图片到浏览器缓存
+             * 避免卡片轮换时因 img.src 变更触发新的网络请求
+             */
+            preloadImages() {
+                this.projectsData.forEach(project => {
+                    if (!project.image) return;
+                    const img = new Image();
+                    img.src = project.image;
+                });
             },
 
             /**
@@ -9075,23 +9269,26 @@
              * 优化点：使用requestAnimationFrame延迟非关键更新，减少主线程阻塞
              */
             updateCardContent(card, project) {
-                // 使用 requestAnimationFrame 确保在下一帧更新内容
-                // 避免与动画同时进行导致卡顿
                 requestAnimationFrame(() => {
                     const imageDiv = card.querySelector('.poker-image');
                     const titleEl = card.querySelector('.poker-title');
                     const descEl = card.querySelector('.poker-desc');
                     const tagsEl = card.querySelector('.poker-tags');
 
-                    // 批量更新样式类
                     imageDiv.className = `poker-image bg-gradient-to-br ${project.gradient}`;
 
-                    // 更新图片或图标
                     if (project.image) {
-                        // 有图片时使用img标签
-                        imageDiv.innerHTML = `<img src="${project.image}" alt="${project.title}" class="w-full h-full object-cover">`;
+                        let imgEl = imageDiv.querySelector('img');
+                        if (!imgEl) {
+                            imgEl = document.createElement('img');
+                            imgEl.className = 'w-full h-full object-cover';
+                            imageDiv.appendChild(imgEl);
+                        }
+                        if (imgEl.src !== location.origin + '/' + project.image && imgEl.getAttribute('src') !== project.image) {
+                            imgEl.src = project.image;
+                        }
+                        imgEl.alt = project.title;
                     } else {
-                        // 没有图片时使用SVG图标
                         imageDiv.innerHTML = `
                             <svg class="w-20 h-20 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="${project.icon}"/>
@@ -9218,15 +9415,13 @@
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
             loadingStartTime = Date.now();
+            document.body.classList.add('loading-active');
 
             /**
-             * 检测刷新时浏览器恢复的滚动位置
-             * 如果不在hero区域（3D模型区域），标记isInHeroSection为false
-             * 这样加载进度条不会等待3D模型加载完成
+             * 始终等待3D模型加载完成
+             * 无论用户当前在哪个区域，模型都必须加载完毕后才能跳过加载页面
              */
-            if (window.scrollY > window.innerHeight * 0.5) {
-                isInHeroSection = false;
-            }
+            isInHeroSection = true;
 
             initLottieGlobe();
 
