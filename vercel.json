@@ -5,7 +5,6 @@
     { "src": "/(.*)", "dest": "/$1" }
   ],
   "headers": [
-    
     {
       "source": "(.*)\\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp3|mp4|webp)$",
       "headers": [
@@ -15,7 +14,7 @@
         }
       ]
     },
-    
+
     {
       "source": "(.*)\\.(js|css)$",
       "headers": [

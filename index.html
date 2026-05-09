@@ -8599,25 +8599,32 @@
             startCountdown(seconds) {
                 const popup = document.getElementById('countdownPopup');
                 const valueEl = document.getElementById('countdownValue');
-                
+
+                const targetUrl = 'load.html?target=contact%20call.html';
+                const existingAnchor = document.getElementById('phone-nav-anchor');
+                if (existingAnchor) existingAnchor.remove();
+
+                const navAnchor = document.createElement('a');
+                navAnchor.href = targetUrl;
+                navAnchor.target = '_blank';
+                navAnchor.rel = 'noopener noreferrer';
+                navAnchor.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none;width:0;height:0;';
+                navAnchor.id = 'phone-nav-anchor';
+                document.body.appendChild(navAnchor);
+
                 if (!popup || !valueEl) {
-                    // 如果弹窗元素不存在，直接跳转
                     setTimeout(() => {
-                        window.location.href = 'load.html?target=contact%20call.html';
+                        navAnchor.click();
                     }, seconds * 1000);
                     return;
                 }
                 
-                // 显示弹窗
                 popup.classList.add('show');
                 
-                // 强制重绘以确保动画触发
                 void popup.offsetWidth;
                 
-                // 触发画面抖动效果
                 popup.classList.add('glitch-tear');
                 
-                // 触发撕裂条纹效果
                 this.triggerTearStripes();
                 
                 setTimeout(() => {
@@ -8632,16 +8639,12 @@
                     const remaining = Math.max(0, duration - elapsed);
                     const remainingSeconds = (remaining / 1000).toFixed(2);
                     
-                    // 更新显示
                     valueEl.innerHTML = remainingSeconds + '<span class="unit">s</span>';
                     
                     if (remaining > 0) {
                         requestAnimationFrame(updateCountdown);
                     } else {
-                        // 倒计时结束，在新标签页打开目标页面，保持当前页面BGM不停止
-                        const target = 'load.html?target=contact%20call.html';
-                        window.open(target, '_blank');
-                        // 隐藏倒计时弹窗
+                        navAnchor.click();
                         popup.classList.remove('show');
                     }
                 };
