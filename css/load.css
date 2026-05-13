@@ -1,0 +1,577 @@
+/* ========== 全局样式 - 星际通讯终端 ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    font-family: 'Orbitron', 'Share Tech Mono', monospace;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 深空背景 */
+.space-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(0, 150, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0, 255, 200, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, #0a0a1a 0%, #000005 100%);
+    z-index: -3;
+}
+
+/* 星空粒子 - 更多更亮更随机 */
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+}
+
+.star {
+    position: absolute;
+    border-radius: 50%;
+    animation: twinkle var(--duration) ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+
+/* 不同亮度的星星 */
+.star.dim {
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.star.normal {
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+.star.bright {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow:
+        0 0 6px rgba(255, 255, 255, 0.8),
+        0 0 12px rgba(200, 230, 255, 0.4);
+}
+
+.star.super-bright {
+    background: #fff;
+    box-shadow:
+        0 0 8px rgba(255, 255, 255, 1),
+        0 0 16px rgba(200, 230, 255, 0.6),
+        0 0 24px rgba(150, 200, 255, 0.3);
+}
+
+/* 彩色星星 */
+.star.blue {
+    background: rgba(150, 200, 255, 0.9);
+    box-shadow: 0 0 6px rgba(150, 200, 255, 0.7);
+}
+
+.star.cyan {
+    background: rgba(0, 255, 200, 0.8);
+    box-shadow: 0 0 6px rgba(0, 255, 200, 0.5);
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: var(--min-opacity);
+        transform: scale(var(--min-scale));
+    }
+    50% {
+        opacity: var(--max-opacity);
+        transform: scale(var(--max-scale));
+    }
+}
+
+/* 扫描线效果 */
+.scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 200, 0.03) 2px,
+        rgba(0, 255, 200, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* 主容器 */
+.comm-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+/* ========== 通讯终端 ========== */
+.comm-terminal {
+    position: relative;
+    width: 400px;
+    padding: 40px;
+    background: linear-gradient(180deg,
+        rgba(10, 20, 40, 0.9) 0%,
+        rgba(5, 10, 25, 0.95) 100%
+    );
+    border: 2px solid rgba(0, 255, 200, 0.3);
+    border-radius: 20px;
+    box-shadow:
+        0 0 60px rgba(0, 150, 255, 0.2),
+        inset 0 2px 4px rgba(100, 200, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* 终端角落装饰 */
+.terminal-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(0, 255, 200, 0.5);
+}
+
+.terminal-corner.tl {
+    top: 10px;
+    left: 10px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.terminal-corner.tr {
+    top: 10px;
+    right: 10px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.terminal-corner.bl {
+    bottom: 10px;
+    left: 10px;
+    border-right: none;
+    border-top: none;
+}
+
+.terminal-corner.br {
+    bottom: 10px;
+    right: 10px;
+    border-left: none;
+    border-top: none;
+}
+
+/* ========== 信号指示器 ========== */
+.signal-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.signal-bar {
+    width: 6px;
+    height: 30px;
+    background: rgba(0, 255, 200, 0.2);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.signal-bar.active {
+    background: rgba(0, 255, 200, 0.9);
+    box-shadow: 0 0 15px rgba(0, 255, 200, 0.8);
+}
+
+.signal-bar:nth-child(1).active { height: 15px; }
+.signal-bar:nth-child(2).active { height: 20px; }
+.signal-bar:nth-child(3).active { height: 25px; }
+.signal-bar:nth-child(4).active { height: 30px; }
+.signal-bar:nth-child(5).active { height: 35px; }
+
+/* ========== 通讯图标 ========== */
+.comm-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 30px;
+    position: relative;
+}
+
+.comm-icon svg {
+    width: 100%;
+    height: 100%;
+    color: rgba(0, 255, 200, 0.9);
+    filter: drop-shadow(0 0 20px rgba(0, 255, 200, 0.6));
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 20px rgba(0, 255, 200, 0.6));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 30px rgba(0, 255, 200, 0.9));
+    }
+}
+
+/* 信号波纹 */
+.signal-wave {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(0, 255, 200, 0.3);
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.signal-wave:nth-child(1) { animation: waveExpand 2s ease-out infinite; }
+.signal-wave:nth-child(2) { animation: waveExpand 2s ease-out infinite 0.5s; }
+.signal-wave:nth-child(3) { animation: waveExpand 2s ease-out infinite 1s; }
+
+@keyframes waveExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
+}
+
+/* ========== 状态信息面板 ========== */
+.status-panel {
+    text-align: center;
+}
+
+/* 主标题 */
+.main-title {
+    font-family: 'VT323', 'Orbitron', monospace;
+    font-size: 3rem;
+    font-weight: 400;
+    color: #00ffc8;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    text-shadow:
+        0 0 10px rgba(0, 255, 200, 0.8),
+        0 0 20px rgba(0, 255, 200, 0.6),
+        2px 0 0 rgba(255, 0, 100, 0.3),
+        -2px 0 0 rgba(0, 150, 255, 0.3);
+    margin-bottom: 15px;
+    animation: titleGlitch 3s ease-in-out infinite;
+}
+
+@keyframes titleGlitch {
+    0%, 90%, 100% {
+        text-shadow:
+            0 0 10px rgba(0, 255, 200, 0.8),
+            0 0 20px rgba(0, 255, 200, 0.6),
+            2px 0 0 rgba(255, 0, 100, 0.3),
+            -2px 0 0 rgba(0, 150, 255, 0.3);
+    }
+    91% {
+        text-shadow:
+            0 0 10px rgba(0, 255, 200, 0.8),
+            4px 0 0 rgba(255, 0, 100, 0.5),
+            -4px 0 0 rgba(0, 150, 255, 0.5);
+    }
+    92% {
+        text-shadow:
+            0 0 10px rgba(0, 255, 200, 0.8),
+            -2px 0 0 rgba(255, 0, 100, 0.5),
+            2px 0 0 rgba(0, 150, 255, 0.5);
+    }
+}
+
+/* 副标题 */
+.sub-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    color: rgba(0, 200, 255, 0.7);
+    letter-spacing: 3px;
+    margin-bottom: 30px;
+}
+
+/* 频率显示 */
+.freq-display {
+    font-family: 'VT323', monospace;
+    font-size: 2rem;
+    color: #00ffc8;
+    letter-spacing: 8px;
+    margin-bottom: 25px;
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.6);
+}
+
+.freq-display .label {
+    font-size: 1rem;
+    color: rgba(0, 200, 255, 0.5);
+    margin-right: 10px;
+}
+
+/* 进度条容器 */
+.progress-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 50, 100, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 200, 255, 0.2);
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg,
+        rgba(0, 255, 200, 0.8) 0%,
+        rgba(0, 200, 255, 1) 50%,
+        rgba(0, 255, 200, 0.8) 100%
+    );
+    box-shadow:
+        0 0 15px rgba(0, 255, 200, 0.8),
+        0 0 30px rgba(0, 200, 255, 0.4);
+    transition: width 0.1s linear;
+}
+
+/* 状态信息 */
+.status-info {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    color: rgba(0, 200, 255, 0.6);
+    letter-spacing: 2px;
+    min-height: 20px;
+}
+
+.status-info .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: rgba(0, 255, 200, 0.8);
+    margin-left: 5px;
+    animation: cursorBlink 0.5s step-end infinite;
+    vertical-align: middle;
+}
+
+@keyframes cursorBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* ========== 角落装饰 ========== */
+.corner-decoration {
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    border: 2px solid rgba(0, 255, 200, 0.3);
+    z-index: 50;
+}
+
+.corner-tl {
+    top: 20px;
+    left: 20px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.corner-tr {
+    top: 20px;
+    right: 20px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.corner-bl {
+    bottom: 20px;
+    left: 20px;
+    border-right: none;
+    border-top: none;
+}
+
+.corner-br {
+    bottom: 20px;
+    right: 20px;
+    border-left: none;
+    border-top: none;
+}
+
+/* ========== 连接成功效果 ========== */
+.connect-success {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center,
+        rgba(0, 255, 200, 0.2) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.connect-success.active {
+    animation: successFlash 0.8s ease-out forwards;
+}
+
+@keyframes successFlash {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* ========== 画面横向撕裂效果 ========== */
+.glitch-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+}
+
+.glitch-overlay.active {
+    opacity: 1;
+}
+
+.tear-stripe {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    opacity: 0;
+}
+
+.tear-stripe.active {
+    animation: stripeTear 0.15s ease-out;
+}
+
+@keyframes stripeTear {
+    0% { opacity: 0; transform: translateX(0); }
+    10% { opacity: 1; transform: translateX(-10px); }
+    30% { opacity: 1; transform: translateX(8px); }
+    50% { opacity: 1; transform: translateX(-6px); }
+    70% { opacity: 0.8; transform: translateX(4px); }
+    100% { opacity: 0; transform: translateX(0); }
+}
+
+/* 整体画面抖动 */
+.screen-shake {
+    animation: horizontalShake 0.15s ease-in-out;
+}
+
+@keyframes horizontalShake {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-8px); }
+    20% { transform: translateX(6px); }
+    30% { transform: translateX(-10px); }
+    40% { transform: translateX(8px); }
+    50% { transform: translateX(-6px); }
+    60% { transform: translateX(4px); }
+    70% { transform: translateX(-4px); }
+    80% { transform: translateX(2px); }
+    90% { transform: translateX(-2px); }
+}
+
+/* 通讯终端撕裂效果 */
+.comm-terminal.glitch-tear {
+    animation: terminalTear 0.2s ease-out;
+}
+
+@keyframes terminalTear {
+    0% {
+        transform: translateX(0);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+    10% {
+        transform: translateX(-5px);
+        clip-path: polygon(0 20%, 100% 20%, 100% 25%, 0 25%);
+    }
+    20% {
+        transform: translateX(4px);
+        clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%);
+    }
+    30% {
+        transform: translateX(-6px);
+        clip-path: polygon(0 75%, 100% 75%, 100% 80%, 0 80%);
+    }
+    40% {
+        transform: translateX(5px);
+        clip-path: polygon(0 35%, 100% 35%, 100% 40%, 0 40%);
+    }
+    50% {
+        transform: translateX(-4px);
+        clip-path: polygon(0 60%, 100% 60%, 100% 65%, 0 65%);
+    }
+    60% {
+        transform: translateX(3px);
+        clip-path: polygon(0 15%, 100% 15%, 100% 20%, 0 20%);
+    }
+    70% {
+        transform: translateX(-3px);
+        clip-path: polygon(0 85%, 100% 85%, 100% 90%, 0 90%);
+    }
+    80% {
+        transform: translateX(2px);
+        clip-path: polygon(0 45%, 100% 45%, 100% 50%, 0 50%);
+    }
+    90% {
+        transform: translateX(-1px);
+        clip-path: polygon(0 70%, 100% 70%, 100% 75%, 0 75%);
+    }
+    100% {
+        transform: translateX(0);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+/* ========== 响应式适配 ========== */
+@media (max-width: 768px) {
+    .comm-terminal {
+        width: 90%;
+        padding: 30px 20px;
+    }
+
+    .main-title {
+        font-size: 2.2rem;
+        letter-spacing: 4px;
+    }
+
+    .comm-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    .freq-display {
+        font-size: 1.5rem;
+    }
+
+    .corner-decoration {
+        width: 50px;
+        height: 50px;
+    }
+}

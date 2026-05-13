@@ -1,0 +1,1590 @@
+/* ========== 全局样式 - 深空科幻 ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: 
+        radial-gradient(ellipse at 20% 20%, rgba(0, 150, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0, 255, 200, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, #0a0a1a 0%, #000005 100%);
+    font-family: 'Consolas', 'Monaco', monospace;
+    overflow: hidden;
+}
+
+/* 星空粒子背景 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(200,220,255,0.6), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(180,200,255,0.5), transparent),
+        radial-gradient(1px 1px at 230px 80px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 300px 150px, rgba(150,180,255,0.4), transparent),
+        radial-gradient(1px 1px at 350px 50px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 450px 200px, rgba(200,220,255,0.6), transparent),
+        radial-gradient(1px 1px at 500px 100px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 600px 250px, rgba(180,200,255,0.7), transparent);
+    background-size: 650px 300px;
+    animation: twinkle 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* 扫描线效果 */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 200, 0.03) 2px,
+        rgba(0, 255, 200, 0.03) 4px
+    );
+    pointer-events: none;
+    animation: scanline 10s linear infinite;
+}
+
+/* 第二条扫描线 */
+.scanline-second {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 200, 255, 0.02) 3px,
+        rgba(0, 200, 255, 0.02) 6px
+    );
+    pointer-events: none;
+    animation: scanline 15s linear infinite;
+    animation-delay: -5s;
+}
+
+@keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+}
+
+/* CRT信号撕裂效果 */
+.signal-glitch {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+}
+
+.signal-glitch.active {
+    animation: glitchTear 0.15s ease-out;
+}
+
+@keyframes glitchTear {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+    10% {
+        opacity: 1;
+        transform: translateX(-8px);
+    }
+    20% {
+        transform: translateX(6px);
+    }
+    30% {
+        transform: translateX(-10px);
+    }
+    40% {
+        transform: translateX(12px);
+    }
+    50% {
+        transform: translateX(-6px);
+    }
+    60% {
+        transform: translateX(8px);
+    }
+    70% {
+        transform: translateX(-4px);
+    }
+    80% {
+        transform: translateX(6px);
+        opacity: 0.8;
+    }
+    90% {
+        transform: translateX(-2px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+}
+
+/* 动态撕裂条纹 - 通过JS随机设置位置 */
+.glitch-stripe {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    opacity: 0;
+}
+
+.glitch-stripe.active {
+    animation: stripeFlash 0.1s ease-out;
+}
+
+@keyframes stripeFlash {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* 左右抖动效果 - 应用于终端容器 */
+.terminal-container.shaking {
+    animation: horizontalShake 0.1s ease-in-out;
+}
+
+@keyframes horizontalShake {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-3px); }
+    20% { transform: translateX(3px); }
+    30% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    50% { transform: translateX(-2px); }
+    60% { transform: translateX(2px); }
+    70% { transform: translateX(-1px); }
+    80% { transform: translateX(1px); }
+    90% { transform: translateX(-1px); }
+}
+
+/* 随机噪点效果 */
+.noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 99;
+    opacity: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.noise-overlay.active {
+    animation: noiseFlash 0.1s ease-out;
+}
+
+@keyframes noiseFlash {
+    0% { opacity: 0; }
+    50% { opacity: 0.15; }
+    100% { opacity: 0; }
+}
+
+/* ========== 通讯终端容器 ========== */
+.terminal-container {
+    position: relative;
+    width: 420px;
+    height: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(0 0 30px rgba(0, 200, 255, 0.3));
+}
+
+/* ========== 通讯耳机 - 科幻头戴设备 ========== */
+.headset {
+    position: relative;
+    width: 340px;
+    height: 90px;
+    z-index: 10;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.headset.active {
+    transform: translateY(-50px) rotate(-3deg);
+    filter: drop-shadow(0 0 20px rgba(0, 255, 200, 0.5));
+}
+
+/* 耳机主体 - 流线型设计 */
+.headset-band {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 45px;
+    background: linear-gradient(180deg, 
+        #2a3a4a 0%, 
+        #1a2a3a 30%,
+        #0a1a2a 60%,
+        #050a15 100%
+    );
+    border-radius: 25px;
+    box-shadow: 
+        0 4px 15px rgba(0,0,0,0.6),
+        inset 0 1px 2px rgba(100,200,255,0.3),
+        inset 0 -2px 4px rgba(0,0,0,0.5);
+    border: 1px solid rgba(0, 200, 255, 0.3);
+}
+
+/* 耳机发光条 */
+.headset-band::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(0, 255, 200, 0.8) 20%,
+        rgba(0, 255, 200, 0.8) 80%,
+        transparent 100%
+    );
+    transform: translateY(-50%);
+    box-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+}
+
+/* 耳机两端 - 耳罩 */
+.headset-left,
+.headset-right {
+    position: absolute;
+    top: 5px;
+    width: 80px;
+    height: 85px;
+    background: linear-gradient(180deg,
+        #3a4a5a 0%,
+        #2a3a4a 30%,
+        #1a2a3a 70%,
+        #0a1520 100%
+    );
+    border-radius: 40px 40px 45px 45px;
+    box-shadow: 
+        0 6px 20px rgba(0,0,0,0.6),
+        inset 0 2px 4px rgba(100,200,255,0.2),
+        inset 0 -2px 4px rgba(0,0,0,0.4);
+    border: 1px solid rgba(0, 200, 255, 0.2);
+}
+
+.headset-left {
+    left: 0;
+}
+
+.headset-right {
+    right: 0;
+}
+
+/* 耳罩发光环 */
+.headset-left::after,
+.headset-right::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(0, 255, 200, 0.4);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 15px rgba(0, 255, 200, 0.3),
+        inset 0 0 15px rgba(0, 255, 200, 0.1);
+}
+
+/* 耳机支架 - 磁悬浮底座 */
+.headset-dock {
+    position: absolute;
+    top: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 35px;
+    z-index: 5;
+}
+
+.dock-left,
+.dock-right {
+    position: absolute;
+    top: 0;
+    width: 35px;
+    height: 45px;
+    background: linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%);
+    border-radius: 0 0 18px 18px;
+    box-shadow: 
+        0 4px 10px rgba(0,0,0,0.5),
+        inset 0 1px 2px rgba(0, 200, 255, 0.2);
+    border: 1px solid rgba(0, 200, 255, 0.2);
+}
+
+.dock-left {
+    left: 0;
+}
+
+.dock-right {
+    right: 0;
+}
+
+/* 底座发光 */
+.dock-left::before,
+.dock-right::before {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: rgba(0, 255, 200, 0.6);
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(0, 255, 200, 0.8);
+}
+
+/* ========== 终端主体 - 六边形科幻设计 ========== */
+.terminal-body {
+    position: relative;
+    width: 400px;
+    height: 480px;
+    background: linear-gradient(180deg,
+        #1a1a2e 0%,
+        #16213e 20%,
+        #0f3460 50%,
+        #0a1628 80%,
+        #050a15 100%
+    );
+    border-radius: 20px;
+    box-shadow: 
+        0 0 40px rgba(0, 150, 255, 0.3),
+        0 20px 60px rgba(0,0,0,0.8),
+        inset 0 2px 4px rgba(100,200,255,0.2),
+        inset 0 -4px 8px rgba(0,0,0,0.4);
+    border: 2px solid rgba(0, 200, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 50px;
+    margin-top: -15px;
+    clip-path: polygon(5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%, 0% 5%);
+}
+
+/* 机身装饰线 */
+.terminal-body::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 15px;
+    right: 15px;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(0, 255, 200, 0.5) 20%,
+        rgba(0, 255, 200, 0.5) 80%,
+        transparent 100%
+    );
+}
+
+/* 角落装饰 */
+.corner-decor {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 2px solid rgba(0, 255, 200, 0.4);
+}
+
+.corner-decor.top-left {
+    top: 10px;
+    left: 10px;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 10px 0 0 0;
+}
+
+.corner-decor.top-right {
+    top: 10px;
+    right: 10px;
+    border-left: none;
+    border-bottom: none;
+    border-radius: 0 10px 0 0;
+}
+
+.corner-decor.bottom-left {
+    bottom: 10px;
+    left: 10px;
+    border-right: none;
+    border-top: none;
+    border-radius: 0 0 0 10px;
+}
+
+.corner-decor.bottom-right {
+    bottom: 10px;
+    right: 10px;
+    border-left: none;
+    border-top: none;
+    border-radius: 0 0 10px 0;
+}
+
+/* ========== 全息显示屏 ========== */
+.hologram-display {
+    position: relative;
+    width: 320px;
+    height: 80px;
+    background: linear-gradient(180deg, 
+        rgba(0, 20, 40, 0.9) 0%, 
+        rgba(0, 10, 20, 0.95) 100%
+    );
+    border-radius: 10px;
+    border: 2px solid rgba(0, 255, 200, 0.4);
+    box-shadow: 
+        0 0 30px rgba(0, 255, 200, 0.2),
+        inset 0 2px 8px rgba(0,0,0,0.8),
+        0 0 60px rgba(0, 200, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    margin-bottom: 35px;
+    overflow: hidden;
+}
+
+/* 全息投影效果 */
+.hologram-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg,
+        rgba(0, 255, 200, 0.1) 0%,
+        transparent 100%
+    );
+    pointer-events: none;
+}
+
+/* 显示屏扫描线 */
+.hologram-display::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 255, 200, 0.05) 3px,
+        rgba(0, 255, 200, 0.05) 6px
+    );
+    pointer-events: none;
+}
+
+.display-text {
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 48px;
+    font-weight: normal;
+    color: #00ffc8;
+    text-shadow: 
+        0 0 5px #00ffc8,
+        0 0 10px #00ffc8,
+        0 0 20px rgba(0, 255, 200, 0.8),
+        0 0 40px rgba(0, 255, 200, 0.4),
+        2px 0 0 rgba(255, 0, 0, 0.3),
+        -2px 0 0 rgba(0, 255, 255, 0.3);
+    letter-spacing: 20px;
+    min-width: 180px;
+    text-align: center;
+    padding-left: 10px;
+    z-index: 1;
+    position: relative;
+}
+
+/* CRT显像管文字效果 */
+.display-text::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.3) 2px,
+        rgba(0, 0, 0, 0.3) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* 字符发光重影效果 */
+.display-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(calc(-50% + 10px));
+    color: rgba(0, 255, 200, 0.3);
+    z-index: -1;
+    filter: blur(1px);
+    letter-spacing: 20px;
+    padding-left: 10px;
+}
+
+.display-text.empty {
+    color: rgba(0, 255, 200, 0.2);
+    text-shadow: none;
+}
+
+.display-text.empty::before,
+.display-text.empty::after {
+    display: none;
+}
+
+/* 拨号中状态 */
+.display-text.calling {
+    animation: callingPulse 0.5s ease-in-out infinite;
+    color: #00ffc8;
+    text-shadow: 
+        0 0 10px rgba(0, 255, 200, 1),
+        0 0 20px rgba(0, 255, 200, 0.8);
+}
+
+@keyframes callingPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* 显示标签 - 七段数码管风格 */
+.display-label {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    color: rgba(0, 255, 200, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 
+        0 0 5px rgba(0, 255, 200, 0.5),
+        2px 0 0 rgba(255, 0, 0, 0.2),
+        -2px 0 0 rgba(0, 255, 255, 0.2);
+}
+
+/* ========== 触控拨号盘 ========== */
+.dial-interface {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 外环底座 */
+.dial-outer-ring {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(180deg,
+        #1a2a3a 0%,
+        #0a1a2a 50%,
+        #050a15 100%
+    );
+    border-radius: 50%;
+    box-shadow: 
+        0 8px 25px rgba(0,0,0,0.6),
+        inset 0 2px 4px rgba(100,200,255,0.2),
+        inset 0 -4px 8px rgba(0,0,0,0.4),
+        0 0 30px rgba(0, 150, 255, 0.2);
+    border: 2px solid rgba(0, 200, 255, 0.2);
+}
+
+/* 外环发光 */
+.dial-outer-ring::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(0, 255, 200, 0.3) 60deg,
+        transparent 120deg,
+        transparent 240deg,
+        rgba(0, 200, 255, 0.3) 300deg,
+        transparent 360deg
+    );
+    z-index: -1;
+    animation: ringPulse 4s linear infinite;
+}
+
+@keyframes ringPulse {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 触控拨号盘 */
+.touch-plate {
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    background: linear-gradient(180deg,
+        rgba(20, 30, 50, 0.9) 0%,
+        rgba(10, 20, 35, 0.95) 50%,
+        rgba(5, 10, 20, 0.9) 100%
+    );
+    border-radius: 50%;
+    box-shadow: 
+        0 6px 20px rgba(0,0,0,0.5),
+        inset 0 2px 4px rgba(100,200,255,0.3),
+        inset 0 -2px 4px rgba(0,0,0,0.3);
+    cursor: grab;
+    transform-origin: center center;
+    transition: none;
+    border: 1px solid rgba(0, 200, 255, 0.3);
+}
+
+.touch-plate.dragging {
+    cursor: grabbing;
+}
+
+.touch-plate.locked {
+    cursor: not-allowed;
+    opacity: 0.6;
+    filter: grayscale(0.5);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.touch-plate:not(.locked) {
+    animation: plateActivate 1.2s ease-out forwards;
+}
+
+@keyframes plateActivate {
+    0% {
+        box-shadow: 
+            0 6px 20px rgba(0,0,0,0.5),
+            inset 0 2px 4px rgba(100,200,255,0.1),
+            inset 0 -2px 4px rgba(0,0,0,0.3);
+        border-color: rgba(0, 200, 255, 0.1);
+    }
+    30% {
+        box-shadow: 
+            0 6px 20px rgba(0,0,0,0.5),
+            inset 0 2px 4px rgba(100,200,255,0.2),
+            inset 0 -2px 4px rgba(0,0,0,0.3),
+            0 0 10px rgba(0, 255, 200, 0.2);
+    }
+    60% {
+        box-shadow: 
+            0 6px 20px rgba(0,0,0,0.5),
+            inset 0 2px 4px rgba(100,200,255,0.3),
+            inset 0 -2px 4px rgba(0,0,0,0.3),
+            0 0 25px rgba(0, 255, 200, 0.4);
+        border-color: rgba(0, 255, 200, 0.4);
+    }
+    100% {
+        box-shadow: 
+            0 6px 20px rgba(0,0,0,0.5),
+            inset 0 2px 4px rgba(100,200,255,0.3),
+            inset 0 -2px 4px rgba(0,0,0,0.3);
+        border-color: rgba(0, 200, 255, 0.3);
+    }
+}
+
+/* 触控盘网格纹理 */
+.touch-plate::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border-radius: 50%;
+    background-image: 
+        linear-gradient(0deg, transparent 24%, rgba(0, 255, 200, 0.05) 25%, rgba(0, 255, 200, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 200, 0.05) 75%, rgba(0, 255, 200, 0.05) 76%, transparent 77%, transparent),
+        linear-gradient(90deg, transparent 24%, rgba(0, 255, 200, 0.05) 25%, rgba(0, 255, 200, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 200, 0.05) 75%, rgba(0, 255, 200, 0.05) 76%, transparent 77%, transparent);
+    background-size: 20px 20px;
+}
+
+/* 中心控制区 */
+.center-hub {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(180deg,
+        #2a3a4a 0%,
+        #1a2a3a 50%,
+        #0a1a2a 100%
+    );
+    border-radius: 50%;
+    box-shadow: 
+        0 4px 15px rgba(0,0,0,0.5),
+        inset 0 2px 4px rgba(100,200,255,0.3),
+        inset 0 -2px 4px rgba(0,0,0,0.3),
+        0 0 20px rgba(0, 200, 255, 0.3);
+    z-index: 10;
+    border: 2px solid rgba(0, 255, 200, 0.4);
+}
+
+/* 中心发光 */
+.center-hub::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 35px;
+    height: 35px;
+    background: radial-gradient(circle, 
+        rgba(0, 255, 200, 0.8) 0%, 
+        rgba(0, 200, 255, 0.4) 50%,
+        transparent 70%
+    );
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.6);
+    animation: hubPulse 2s ease-in-out infinite;
+}
+
+@keyframes hubPulse {
+    0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* 触控节点 */
+.touch-node {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(180deg,
+        rgba(30, 50, 70, 0.9) 0%,
+        rgba(20, 35, 50, 0.95) 100%
+    );
+    border-radius: 50%;
+    box-shadow: 
+        inset 0 3px 6px rgba(0,0,0,0.6),
+        0 2px 4px rgba(0, 200, 255, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid rgba(0, 200, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+.touch-node {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.touch-node:hover {
+    box-shadow: 
+        inset 0 3px 6px rgba(0,0,0,0.6),
+        0 0 20px rgba(0, 255, 200, 0.6);
+    border-color: rgba(0, 255, 200, 0.8);
+    transform: scale(1.05);
+}
+
+.touch-node::before {
+    content: attr(data-number);
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 40px;
+    font-weight: normal;
+    color: rgba(0, 255, 200, 0.3);
+    text-shadow: none;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+}
+
+/* 拨号盘激活后数字亮起 - 带随机故障闪烁 */
+.touch-plate:not(.locked) .touch-node::before {
+    animation: numberFlash 0.6s ease-out forwards;
+    animation-delay: calc(var(--node-index, 0) * 0.08s);
+}
+
+/* 故障闪烁效果 */
+.touch-plate:not(.locked) .touch-node.glitchy::before {
+    animation: numberFlashGlitch 0.8s ease-out forwards;
+    animation-delay: calc(var(--node-index, 0) * 0.08s);
+}
+
+@keyframes numberFlash {
+    0% {
+        color: rgba(0, 255, 200, 0.2);
+        text-shadow: none;
+    }
+    30% {
+        /* 直接亮起 */
+        color: #00ffc8;
+        text-shadow: 
+            0 0 10px rgba(0, 255, 200, 1),
+            0 0 20px rgba(0, 255, 200, 0.8),
+            0 0 30px rgba(0, 255, 200, 0.6);
+    }
+    50% {
+        /* 闪一下更亮 */
+        color: #ffffff;
+        text-shadow: 
+            0 0 15px rgba(0, 255, 200, 1),
+            0 0 30px rgba(0, 255, 200, 1),
+            0 0 50px rgba(0, 255, 200, 0.8);
+    }
+    100% {
+        /* 稳定亮度 */
+        color: #00ffc8;
+        text-shadow: 
+            0 0 8px rgba(0, 255, 200, 1),
+            0 0 15px rgba(0, 255, 200, 0.9),
+            0 0 25px rgba(0, 255, 200, 0.6);
+    }
+}
+
+@keyframes numberFlashGlitch {
+    0% {
+        color: rgba(0, 255, 200, 0.2);
+        text-shadow: none;
+    }
+    10% {
+        /* 尝试亮起 */
+        color: #00ffc8;
+        text-shadow: 0 0 10px rgba(0, 255, 200, 0.8);
+    }
+    15% {
+        /* 故障熄灭 */
+        color: rgba(0, 255, 200, 0.1);
+        text-shadow: none;
+    }
+    20% {
+        /* 微弱闪烁 */
+        color: rgba(0, 255, 200, 0.2);
+        text-shadow: 0 0 3px rgba(0, 255, 200, 0.2);
+    }
+    25% {
+        /* 再次尝试 */
+        color: rgba(0, 255, 200, 0.3);
+        text-shadow: 0 0 5px rgba(0, 255, 200, 0.3);
+    }
+    30% {
+        /* 又灭了 */
+        color: rgba(0, 255, 200, 0.05);
+        text-shadow: none;
+    }
+    40% {
+        /* 接触不良闪烁 */
+        color: rgba(0, 255, 200, 0.5);
+        text-shadow: 0 0 8px rgba(0, 255, 200, 0.5);
+    }
+    45% {
+        /* 又暗了 */
+        color: rgba(0, 255, 200, 0.1);
+        text-shadow: none;
+    }
+    50% {
+        /* 亮度变化 */
+        color: rgba(0, 255, 200, 0.4);
+        text-shadow: 0 0 5px rgba(0, 255, 200, 0.4);
+    }
+    55% {
+        /* 再次尝试亮起 */
+        color: rgba(0, 200, 255, 0.7);
+        text-shadow: 0 0 10px rgba(0, 200, 255, 0.6);
+    }
+    60% {
+        /* 闪一下 */
+        color: #00ffc8;
+        text-shadow: 
+            0 0 15px rgba(0, 255, 200, 0.9),
+            0 0 25px rgba(0, 255, 200, 0.7);
+    }
+    65% {
+        /* 又暗了 */
+        color: rgba(0, 255, 200, 0.2);
+        text-shadow: none;
+    }
+    70% {
+        /* 最后一次尝试 */
+        color: rgba(0, 255, 200, 0.6);
+        text-shadow: 0 0 10px rgba(0, 255, 200, 0.6);
+    }
+    75% {
+        /* 终于稳定亮起 */
+        color: #ffffff;
+        text-shadow: 
+            0 0 15px rgba(0, 255, 200, 1),
+            0 0 30px rgba(0, 255, 200, 1),
+            0 0 50px rgba(0, 255, 200, 0.8);
+    }
+    100% {
+        /* 稳定亮度 */
+        color: #00ffc8;
+        text-shadow: 
+            0 0 8px rgba(0, 255, 200, 1),
+            0 0 15px rgba(0, 255, 200, 0.9),
+            0 0 25px rgba(0, 255, 200, 0.6);
+    }
+}
+
+/* 激活标记 - 箭头 */
+.activation-marker {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+    z-index: 20;
+}
+
+.activation-marker::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 18px 55px 18px 0;
+    border-color: transparent rgba(0, 255, 200, 0.6) transparent transparent;
+    transform: translate(-50%, -50%) rotate(45deg);
+    transform-origin: center center;
+    filter: drop-shadow(-2px 2px 8px rgba(0, 255, 200, 0.5));
+}
+
+/* 状态指示器 */
+.status-indicator {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #1a2a3a;
+    box-shadow: 
+        inset 0 2px 4px rgba(0,0,0,0.6),
+        0 1px 2px rgba(0, 200, 255, 0.2);
+    transition: all 0.3s ease;
+    z-index: 25;
+    border: 1px solid rgba(0, 200, 255, 0.2);
+}
+
+.status-indicator.active {
+    background: #00ffc8;
+    box-shadow:
+        0 0 10px #00ffc8,
+        0 0 20px rgba(0, 255, 200, 0.6),
+        0 0 30px rgba(0, 255, 200, 0.3),
+        inset 0 1px 2px rgba(255,255,255,0.5);
+    animation: statusFlicker 2s ease-out forwards,
+               statusUnstable 4s ease-in-out infinite 2s;
+}
+
+@keyframes statusFlicker {
+    0% { 
+        opacity: 0;
+        background: #1a2a3a;
+        box-shadow: none;
+    }
+    10% { 
+        opacity: 1;
+        background: #00ffc8;
+        box-shadow:
+            0 0 10px #00ffc8,
+            0 0 20px rgba(0, 255, 200, 0.6);
+    }
+    15% { 
+        opacity: 0.3;
+        background: #1a2a3a;
+        box-shadow: none;
+    }
+    20% { 
+        opacity: 1;
+        background: #00ffc8;
+        box-shadow:
+            0 0 10px #00ffc8,
+            0 0 20px rgba(0, 255, 200, 0.6);
+    }
+    25% { 
+        opacity: 0.2;
+    }
+    30% { 
+        opacity: 0.8;
+    }
+    35% { 
+        opacity: 0.1;
+    }
+    40% { 
+        opacity: 1;
+    }
+    45% { 
+        opacity: 0.4;
+    }
+    50% { 
+        opacity: 0.9;
+    }
+    55% { 
+        opacity: 0.3;
+    }
+    60% { 
+        opacity: 1;
+        background: #00ffc8;
+        box-shadow:
+            0 0 10px #00ffc8,
+            0 0 20px rgba(0, 255, 200, 0.6),
+            0 0 30px rgba(0, 255, 200, 0.3),
+            inset 0 1px 2px rgba(255,255,255,0.5);
+    }
+    100% { 
+        opacity: 1;
+        background: #00ffc8;
+        box-shadow:
+            0 0 10px #00ffc8,
+            0 0 20px rgba(0, 255, 200, 0.6),
+            0 0 30px rgba(0, 255, 200, 0.3),
+            inset 0 1px 2px rgba(255,255,255,0.5);
+    }
+}
+
+@keyframes statusUnstable {
+    0%, 100% { 
+        opacity: 1;
+        background: #00ffc8;
+        box-shadow:
+            0 0 10px #00ffc8,
+            0 0 20px rgba(0, 255, 200, 0.6),
+            0 0 30px rgba(0, 255, 200, 0.3),
+            inset 0 1px 2px rgba(255,255,255,0.5);
+    }
+    9% { 
+        opacity: 1;
+    }
+    10% { 
+        opacity: 0.3;
+    }
+    14% { 
+        opacity: 0.3;
+    }
+    15% { 
+        opacity: 1;
+    }
+    24% { 
+        opacity: 1;
+    }
+    25% { 
+        opacity: 0.2;
+    }
+    29% { 
+        opacity: 0.2;
+    }
+    30% { 
+        opacity: 0.9;
+    }
+    44% { 
+        opacity: 0.9;
+    }
+    45% { 
+        opacity: 0;
+        background: #1a2a3a;
+        box-shadow: none;
+    }
+    49% { 
+        opacity: 0;
+        background: #1a2a3a;
+        box-shadow: none;
+    }
+    50% { 
+        opacity: 1;
+        background: #00ffc8;
+        box-shadow:
+            0 0 10px #00ffc8,
+            0 0 20px rgba(0, 255, 200, 0.6),
+            0 0 30px rgba(0, 255, 200, 0.3),
+            inset 0 1px 2px rgba(255,255,255,0.5);
+    }
+    69% { 
+        opacity: 1;
+    }
+    70% { 
+        opacity: 0;
+        background: #1a2a3a;
+        box-shadow: none;
+    }
+    84% { 
+        opacity: 0;
+        background: #1a2a3a;
+        box-shadow: none;
+    }
+    85% { 
+        opacity: 1;
+        background: #00ffc8;
+        box-shadow:
+            0 0 10px #00ffc8,
+            0 0 20px rgba(0, 255, 200, 0.6),
+            0 0 30px rgba(0, 255, 200, 0.3),
+            inset 0 1px 2px rgba(255,255,255,0.5);
+    }
+    94% { 
+        opacity: 1;
+    }
+    95% { 
+        opacity: 0.4;
+    }
+    99% { 
+        opacity: 0.4;
+    }
+}
+
+/* 信号强度指示 */
+.signal-bars {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    z-index: 25;
+}
+
+.signal-bar {
+    width: 4px;
+    background: rgba(0, 255, 200, 0.3);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.signal-bar:nth-child(1) { height: 6px; }
+.signal-bar:nth-child(2) { height: 10px; }
+.signal-bar:nth-child(3) { height: 14px; }
+.signal-bar:nth-child(4) { height: 18px; }
+
+.signal-bar.active {
+    background: rgba(0, 255, 200, 0.9);
+    box-shadow: 0 0 5px rgba(0, 255, 200, 0.8);
+}
+
+/* ========== 赛博便签 ========== */
+.cyber-note {
+    position: fixed;
+    right: -240px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 360px;
+    background: linear-gradient(180deg,
+        rgba(20, 30, 50, 0.95) 0%,
+        rgba(10, 20, 35, 0.98) 100%
+    );
+    border: 4px solid rgba(0, 255, 200, 0.4);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 
+        0 0 60px rgba(0, 200, 255, 0.2),
+        inset 0 4px 8px rgba(100,200,255,0.1);
+    cursor: grab;
+    z-index: 50;
+    transition: right 0.3s ease;
+}
+
+.cyber-note:hover {
+    right: 0;
+}
+
+.cyber-note.dragging {
+    cursor: grabbing;
+    transition: none;
+}
+
+.cyber-note-header {
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    color: rgba(0, 255, 200, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(0, 255, 200, 0.2);
+    padding-bottom: 10px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 16px 0;
+    font-family: 'VT323', monospace;
+    font-size: 32px;
+    color: #00ffc8;
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+}
+
+.pixel-icon {
+    width: 40px;
+    height: 40px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 6px rgba(0, 255, 200, 0.6));
+}
+
+/* GitHub Logo 图标 - 带接触不良闪烁 */
+.icon-github {
+    background: transparent;
+    position: relative;
+    animation: iconGlitch 3s ease-in-out infinite;
+}
+
+.icon-github::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: #00ffc8;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 200, 0.6));
+}
+
+/* Bilibili Logo 图标 - 带接触不良闪烁 */
+.icon-bilibili {
+    background: transparent;
+    position: relative;
+    animation: iconGlitch 3.5s ease-in-out infinite;
+    animation-delay: 1s;
+}
+
+.icon-bilibili::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: #00ffc8;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 200, 0.6));
+}
+
+/* QQ Logo 图标 - 带接触不良闪烁 */
+.icon-qq {
+    background: transparent;
+    position: relative;
+    animation: iconGlitch 4s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+.icon-qq::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: #00ffc8;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.003 2c-2.265 0-6.29 1.364-6.29 7.325v1.195S3.55 14.96 3.55 17.474c0 .665.17 1.025.281 1.025.114 0 .902-.484 1.748-2.072 0 0-.18 2.197 1.904 3.967 0 0-1.77.495-1.77 1.182 0 .686 4.078.43 6.29.43 2.21 0 6.287.257 6.287-.43 0-.687-1.768-1.182-1.768-1.182 2.085-1.77 1.905-3.967 1.905-3.967.845 1.588 1.634 2.072 1.746 2.072.111 0 .283-.36.283-1.025 0-2.514-2.166-6.954-2.166-6.954V9.325C18.29 3.364 14.268 2 12.003 2z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.003 2c-2.265 0-6.29 1.364-6.29 7.325v1.195S3.55 14.96 3.55 17.474c0 .665.17 1.025.281 1.025.114 0 .902-.484 1.748-2.072 0 0-.18 2.197 1.904 3.967 0 0-1.77.495-1.77 1.182 0 .686 4.078.43 6.29.43 2.21 0 6.287.257 6.287-.43 0-.687-1.768-1.182-1.768-1.182 2.085-1.77 1.905-3.967 1.905-3.967.845 1.588 1.634 2.072 1.746 2.072.111 0 .283-.36.283-1.025 0-2.514-2.166-6.954-2.166-6.954V9.325C18.29 3.364 14.268 2 12.003 2z'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 200, 0.6));
+}
+
+/* 图标接触不良闪烁动画 */
+@keyframes iconGlitch {
+    0%, 90%, 100% { opacity: 1; }
+    91% { opacity: 0.3; }
+    92% { opacity: 1; }
+    93% { opacity: 0.2; }
+    94% { opacity: 1; }
+    95% { opacity: 0.4; }
+    96% { opacity: 1; }
+}
+
+/* Email 图标 - 带接触不良闪烁 */
+.icon-email {
+    background: transparent;
+    position: relative;
+    animation: iconGlitch 3.2s ease-in-out infinite;
+    animation-delay: 0.5s;
+}
+
+.icon-email::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: #00ffc8;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 200, 0.6));
+}
+
+/* ??? 神秘图标 */
+.icon-mystery {
+    background: transparent;
+    border: 3px solid rgba(255, 100, 100, 0.8);
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 0 12px rgba(255, 100, 100, 0.4);
+    animation: mysteryPulse 2s ease-in-out infinite;
+}
+
+.icon-mystery::before {
+    content: '?';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'VT323', monospace;
+    font-size: 48px;
+    color: rgba(255, 100, 100, 0.9);
+    text-shadow: 0 0 10px rgba(255, 100, 100, 0.6);
+}
+
+@keyframes mysteryPulse {
+    0%, 100% {
+        border-color: rgba(255, 100, 100, 0.6);
+        box-shadow: 0 0 12px rgba(255, 100, 100, 0.3);
+    }
+    50% {
+        border-color: rgba(255, 100, 100, 1);
+        box-shadow: 0 0 20px rgba(255, 100, 100, 0.6);
+    }
+}
+
+/* 黑洞图标 - 591 */
+.icon-blackhole {
+    background: transparent;
+    position: relative;
+    animation: blackholeSpin 3s linear infinite;
+}
+
+/* 黑洞中心 */
+.icon-blackhole::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: #000;
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 2px rgba(100, 0, 200, 0.8),
+        0 0 0 4px rgba(80, 0, 180, 0.6),
+        0 0 0 6px rgba(60, 0, 160, 0.4),
+        0 0 10px rgba(100, 0, 200, 0.8);
+    z-index: 2;
+}
+
+/* 吸积盘 - 外环 */
+.icon-blackhole::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    border: 2px solid transparent;
+    border-top-color: rgba(150, 50, 255, 0.9);
+    border-right-color: rgba(100, 0, 200, 0.6);
+    border-radius: 50%;
+    animation: accretionSpin 2s linear infinite reverse;
+}
+
+/* 内环 */
+.icon-blackhole .ring-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid transparent;
+    border-bottom-color: rgba(200, 100, 255, 0.8);
+    border-left-color: rgba(150, 50, 220, 0.5);
+    border-radius: 50%;
+    animation: accretionSpin 1.5s linear infinite;
+}
+
+/* 粒子喷射 */
+.icon-blackhole .jets {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+}
+
+.icon-blackhole .jets::before,
+.icon-blackhole .jets::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 8px;
+    background: linear-gradient(to top, rgba(150, 50, 255, 0.8), transparent);
+    animation: jetPulse 1s ease-in-out infinite;
+}
+
+.icon-blackhole .jets::before {
+    top: -4px;
+}
+
+.icon-blackhole .jets::after {
+    bottom: -4px;
+    background: linear-gradient(to bottom, rgba(150, 50, 255, 0.8), transparent);
+    animation-delay: 0.5s;
+}
+
+@keyframes blackholeSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes accretionSpin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes jetPulse {
+    0%, 100% { opacity: 0.4; transform: translateX(-50%) scaleY(0.8); }
+    50% { opacity: 1; transform: translateX(-50%) scaleY(1.2); }
+}
+
+.note-handle {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 80px;
+    background: linear-gradient(180deg,
+        rgba(0, 255, 200, 0.3) 0%,
+        rgba(0, 255, 200, 0.6) 50%,
+        rgba(0, 255, 200, 0.3) 100%
+    );
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.4);
+}
+
+/* ========== 使用说明 ========== */
+.instructions {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: rgba(0, 200, 255, 0.6);
+    font-size: 13px;
+    line-height: 1.8;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.instructions p {
+    margin: 5px 0;
+}
+
+.key {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(0, 255, 200, 0.15);
+    border: 1px solid rgba(0, 255, 200, 0.3);
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    color: #00ffc8;
+    text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+}
+
+/* ========== 科幻动画效果 ========== */
+@keyframes dataStream {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* 能量波动效果 */
+@keyframes energyWave {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+.energy-ring {
+    position: absolute;
+    border: 2px solid rgba(0, 255, 200, 0.5);
+    border-radius: 50%;
+    animation: energyWave 2s ease-out infinite;
+}
+
+/* 启动序列动画 */
+@keyframes bootSequence {
+    0% { opacity: 0; transform: scale(0.9); }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.booting {
+    animation: bootSequence 0.5s ease-out;
+}

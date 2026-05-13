@@ -5292,7 +5292,7 @@ function initLottieGlobe() {
         renderer: 'svg',
         loop: false,
         autoplay: true,
-        path: 'Js/wired-outline-27-globe-in-reveal.json'
+        path: 'js/wired-outline-27-globe-in-reveal.json'
     });
 
     // 设置动画颜色为霓虹蓝
