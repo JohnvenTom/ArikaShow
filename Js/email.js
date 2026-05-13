@@ -301,7 +301,7 @@ function initCustomCursor() {
         renderer: 'svg',
         loop: false,
         autoplay: true,
-        path: 'js/wired-outline-35-edit-in-dynamic.json'
+        path: 'asset/json/wired-outline-35-edit-in-dynamic.json'
     });
 
     /**
@@ -322,7 +322,7 @@ function initCustomCursor() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: 'js/wired-outline-35-edit-hover-line.json'
+            path: 'asset/json/wired-outline-35-edit-hover-line.json'
         });
         clickAnim.goToAndStop(0, true);
     });

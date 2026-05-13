@@ -16,9 +16,9 @@ const customCursor = {
     isOverVideo: false,
     videoState: 'none',
     currentAnimation: 'normal',
-    normalAnimationPath: 'js/system-regular-715-spinner-horizontal-dashed-circle-loop-jab.json',
-    dragAnimationPath: 'js/system-regular-715-spinner-horizontal-dashed-circle-loop-transparency.json',
-    playAnimationPath: 'js/system-regular-26-play-morph-play-pause.json',
+    normalAnimationPath: 'asset/json/system-regular-715-spinner-horizontal-dashed-circle-loop-jab.json',
+    dragAnimationPath: 'asset/json/system-regular-715-spinner-horizontal-dashed-circle-loop-transparency.json',
+    playAnimationPath: 'asset/json/system-regular-26-play-morph-play-pause.json',
 
     /**
      * 预加载所有 Lottie 动画 JSON 到内存缓存
