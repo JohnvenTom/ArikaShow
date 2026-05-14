@@ -2354,45 +2354,39 @@ function startExpandAnimation() {
     });
 }
 
-// 模拟加载进度 - 固定1.5秒
-function simulateLoading() {
-    // 注意：typeWriterEffect已经在DOMContentLoaded中调用，这里不再重复调用
-
-    // 启动全局加载超时保护（12秒后强制完成）
+// ============================================
+// 加载进度控制 - 统一真实加载，缓存命中时加速放行
+// ============================================
+function startLoading() {
     startGlobalLoadingTimeout();
 
-    // 先重置进度
     modelLoadProgress = 0;
     musicLoadProgress = 0;
 
-    let progress = 0;
+    const effectiveMinTime = useSimulatedLoading ? 600 : MIN_LOADING_TIME;
+
+    let displayProgress = 0;
     simulationInterval = setInterval(() => {
         const elapsedTime = Date.now() - loadingStartTime;
 
-        // 计算应该显示的进度（在1.5秒内从0到100）
-        progress = Math.min(Math.floor((elapsedTime / MIN_LOADING_TIME) * 100), 99);
-
-        // 如果是模拟加载模式，同时更新模型和音乐的进度
         if (useSimulatedLoading) {
-            modelLoadProgress = progress;
-            musicLoadProgress = progress;
+            displayProgress = Math.min(Math.floor((elapsedTime / effectiveMinTime) * 100), 99);
+        } else {
+            const mp = modelLoadProgress || 0;
+            const mup = musicLoadProgress || 0;
+            displayProgress = Math.floor((mp + mup) / 2);
         }
 
-        updateLoaderProgress(progress);
+        updateLoaderProgress(displayProgress);
 
-        if (elapsedTime >= MIN_LOADING_TIME) {
+        if (elapsedTime >= effectiveMinTime && isModelLoaded && isMusicLoaded) {
             clearInterval(simulationInterval);
             simulationInterval = null;
-
-            // 如果是模拟加载模式，确保都设为100
-            if (useSimulatedLoading) {
-                modelLoadProgress = 100;
-                musicLoadProgress = 100;
-            }
-
+            modelLoadProgress = 100;
+            musicLoadProgress = 100;
             updateLoaderProgress(100);
         }
-    }, 50); // 每50ms更新一次
+    }, 50);
 }
 
 // ============================================
@@ -5368,8 +5362,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 先进行缓存检测，然后根据结果决定加载方式
     await detectAndDecideLoading();
     
-    // 启动加载（现在内部会根据 useSimulatedLoading 决定如何更新进度）
-    simulateLoading();
+    // 启动加载（统一真实加载，缓存命中时加速放行）
+    startLoading();
 
     // 启动欢迎文字淡出效果
     initWelcomeTextFade();
