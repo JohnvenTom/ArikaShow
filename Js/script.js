@@ -1,214 +1,4 @@
 // ============================================
-// 星空背景粒子系统 - 3D球体分布，固定在空间中，随相机视角旋转
-// ============================================
-class StarField {
-    constructor() {
-        this.canvas = document.getElementById('starfield');
-        this.ctx = this.canvas.getContext('2d');
-        this.stars = [];
-        this.mouseX = 0;
-        this.mouseY = 0;
-        // 相机视角旋转角度
-        this.cameraRotationY = 0;
-        this.cameraRotationX = 0;
-        // 目标旋转角度（用于缓动）
-        this.targetRotationY = 0;
-        this.targetRotationX = 0;
-        // 是否可见
-        this.isVisible = true;
-        // 动画帧ID
-        this.animationId = null;
-        this.init();
-    }
-    
-    init() {
-        this.resize();
-        this.createStars();
-        this.bindEvents();
-        this.animate();
-    }
-    
-    /**
-     * 设置可见性状态
-     * @param {boolean} visible - 是否可见
-     */
-    setVisible(visible) {
-        if (this.isVisible === visible) return;
-        this.isVisible = visible;
-        if (visible && !this.animationId) {
-            this.animate();
-        }
-    }
-    
-    resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    }
-    
-    createStars() {
-        // 创建3D球体分布的星星 - 带有移动速度和拖尾
-        const count = 600;
-        this.stars = [];
-
-        for (let i = 0; i < count; i++) {
-            // 球坐标随机分布
-            const phi = Math.acos(-1 + (2 * i) / count);
-            const theta = Math.sqrt(count * Math.PI) * phi;
-
-            // 半径随机分布在球面上
-            const radius = 800 + Math.random() * 600;
-
-            const x = radius * Math.cos(theta) * Math.sin(phi);
-            const y = radius * Math.cos(phi);
-            const z = radius * Math.sin(theta) * Math.sin(phi);
-
-            // 随机移动速度
-            const speedX = (Math.random() - 0.5) * 0.3;
-            const speedY = (Math.random() - 0.5) * 0.3;
-            const speedZ = (Math.random() - 0.5) * 0.3;
-
-            this.stars.push({
-                x: x,
-                y: y,
-                z: z,
-                // 星星在宇宙空间中的位置
-                worldX: x,
-                worldY: y,
-                worldZ: z,
-                // 移动速度
-                speedX: speedX,
-                speedY: speedY,
-                speedZ: speedZ,
-                // 拖尾历史位置
-                trail: [],
-                trailDecay: Math.random() * 0.02 + 0.01, // 随机消失速度
-                size: Math.random() * 1.5 + 0.5,
-                brightness: Math.random() * 0.5 + 0.5
-            });
-        }
-    }
-    
-    bindEvents() {
-        window.addEventListener('resize', () => {
-            this.resize();
-        });
-        // 移除鼠标移动事件，星空不随鼠标移动
-    }
-    
-    // 设置相机目标旋转角度（由ModelViewer调用）
-    setCameraRotation(rotX, rotY) {
-        this.targetRotationX = rotX;
-        this.targetRotationY = rotY;
-    }
-    
-    animate() {
-        // 缓动效果 - 更明显的平滑过渡
-        const lerpFactor = 0.045;
-        this.cameraRotationX += (this.targetRotationX - this.cameraRotationX) * lerpFactor;
-        this.cameraRotationY += (this.targetRotationY - this.cameraRotationY) * lerpFactor;
-
-        // 使用半透明清除，产生拖尾效果
-        this.ctx.fillStyle = 'rgba(5, 5, 8, 0.3)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
-        const fov = 600;
-
-        // 预计算旋转参数
-        const cosY = Math.cos(-this.cameraRotationY);
-        const sinY = Math.sin(-this.cameraRotationY);
-        const cosX = Math.cos(-this.cameraRotationX);
-        const sinX = Math.sin(-this.cameraRotationX);
-
-        // 更新星星位置并绘制拖尾
-        for (let i = 0; i < this.stars.length; i++) {
-            const star = this.stars[i];
-
-            // 移动星星
-            star.worldX += star.speedX;
-            star.worldY += star.speedY;
-            star.worldZ += star.speedZ;
-
-            // 边界检查 - 如果移动太远，重置位置
-            const dist = Math.sqrt(star.worldX ** 2 + star.worldY ** 2 + star.worldZ ** 2);
-            if (dist > 2000 || dist < 600) {
-                star.speedX *= -1;
-                star.speedY *= -1;
-                star.speedZ *= -1;
-            }
-
-            // 计算当前位置
-            let x = star.worldX * cosY - star.worldZ * sinY;
-            let z = star.worldX * sinY + star.worldZ * cosY;
-            let y = star.worldY;
-            let y2 = y * cosX - z * sinX;
-            let z2 = y * sinX + z * cosX;
-
-            const scale = fov / (fov + z2 + 800);
-            const x2d = centerX + x * scale;
-            const y2d = centerY + y2 * scale;
-
-            // 保存当前位置到拖尾，带随机消失
-            if (x2d > 0 && x2d < this.canvas.width && y2d > 0 && y2d < this.canvas.height && z2 > -400) {
-                star.trail.unshift({ x: x2d, y: y2d, scale: scale, life: 1.0 });
-            }
-
-            // 更新拖尾生命值并移除死亡的点
-            for (let j = star.trail.length - 1; j >= 0; j--) {
-                star.trail[j].life -= star.trailDecay;
-                if (star.trail[j].life <= 0) {
-                    star.trail.splice(j, 1);
-                }
-            }
-
-            // 绘制拖尾 - 根据生命值调整透明度
-            if (star.trail.length > 1) {
-                for (let j = 0; j < star.trail.length - 1; j++) {
-                    const point = star.trail[j];
-                    const nextPoint = star.trail[j + 1];
-                    // 根据生命值计算透明度
-                    const alpha = point.life * star.brightness * 0.5;
-
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(point.x, point.y);
-                    this.ctx.lineTo(nextPoint.x, nextPoint.y);
-                    this.ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
-                    this.ctx.lineWidth = star.size * point.scale * 0.5 * point.life;
-                    this.ctx.lineCap = 'round';
-                    this.ctx.stroke();
-                }
-            }
-
-            // 绘制星星核心
-            if (x2d > 0 && x2d < this.canvas.width && y2d > 0 && y2d < this.canvas.height && z2 > -400) {
-                const size = star.size * scale;
-
-                // 光晕
-                this.ctx.beginPath();
-                this.ctx.arc(x2d, y2d, size * 3, 0, Math.PI * 2);
-                this.ctx.fillStyle = `rgba(0, 212, 255, ${star.brightness * 0.2})`;
-                this.ctx.fill();
-
-                // 核心
-                this.ctx.beginPath();
-                this.ctx.arc(x2d, y2d, size, 0, Math.PI * 2);
-                this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-                this.ctx.fill();
-            }
-        }
-
-        // 如果不可见，停止动画循环
-        if (!this.isVisible) {
-            this.animationId = null;
-            return;
-        }
-        
-        this.animationId = requestAnimationFrame(() => this.animate());
-    }
-}
-
-// ============================================
 // 内容区域背景粒子系统 - 2D浮动粒子，带连线效果
 // ============================================
 class ContentParticles {
@@ -493,7 +283,7 @@ class SmoothLerp {
 // Three.js GLB模型加载和相机控制
 // ============================================
 class ModelViewer {
-    constructor(starField, contentParticles, scrollController) {
+    constructor(contentParticles, scrollController) {
         this.canvas = document.getElementById('model-canvas');
         this.scene = null;
         this.camera = null;
@@ -505,7 +295,6 @@ class ModelViewer {
         // 相机初始更近，结束更近（优化：拉近镜头）
         this.initialCameraPosition = { x: 0, y: 0, z: 1.0 };
         this.targetCameraPosition = { x: 2, y: 1.5, z: 0.8 };
-        this.starField = starField;
         this.contentParticles = contentParticles;
         this.scrollController = scrollController;
         // 使用全局缓动工具
@@ -594,6 +383,7 @@ class ModelViewer {
         this.applyCanvasClip(offsetX, offsetY);
         
         this.setupLights();
+        this.createStars();
         
         this.bindEvents();
 
@@ -614,13 +404,6 @@ class ModelViewer {
                 if (currentScrollY > contentTop - 10) {
                     this.isVisible = false;
                     this.canvas.classList.add('hidden');
-                    if (this.starField) {
-                        this.starField.setVisible(false);
-                    }
-                    const starfield = document.getElementById('starfield');
-                    if (starfield) {
-                        starfield.style.opacity = '0';
-                    }
                     if (this.contentParticles) {
                         this.contentParticles.setVisible(true);
                     }
@@ -661,6 +444,107 @@ class ModelViewer {
         const rimLight = new THREE.DirectionalLight(0xffffff, 1);
         rimLight.position.set(0, 5, -5);
         this.scene.add(rimLight);
+    }
+    
+    /**
+     * 创建3D星空粒子 - 1000颗星星固定在3D空间中，随机亮度闪烁
+     * 使用自定义ShaderMaterial实现高性能闪烁效果
+     */
+    createStars() {
+        const count = 1000;
+        const positions = new Float32Array(count * 3);
+        const phases = new Float32Array(count);
+        const speeds = new Float32Array(count);
+        const baseSizes = new Float32Array(count);
+
+        const spreadRadius = 50;
+
+        for (let i = 0; i < count; i++) {
+            const phi = Math.acos(-1 + (2 * i) / count);
+            const theta = Math.sqrt(count * Math.PI) * phi;
+            const r = spreadRadius * (0.3 + Math.random() * 0.7);
+
+            positions[i * 3] = r * Math.cos(theta) * Math.sin(phi);
+            positions[i * 3 + 1] = r * Math.cos(phi);
+            positions[i * 3 + 2] = r * Math.sin(theta) * Math.sin(phi);
+
+            phases[i] = Math.random() * Math.PI * 2;
+            speeds[i] = 0.3 + Math.random() * 2.5;
+            baseSizes[i] = 0.1 + Math.random() * 0.8;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
+        geometry.setAttribute('aSpeed', new THREE.BufferAttribute(speeds, 1));
+        geometry.setAttribute('aBaseSize', new THREE.BufferAttribute(baseSizes, 1));
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uPixelRatio: { value: Math.min(window.devicePixelRatio, 1.5) }
+            },
+            vertexShader: `
+                attribute float aPhase;
+                attribute float aSpeed;
+                attribute float aBaseSize;
+                uniform float uTime;
+                uniform float uPixelRatio;
+                varying float vBrightness;
+
+                void main() {
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+                    // 镜头外粒子不渲染：在相机后方或超出远裁面
+                    if (mvPosition.z > 0.0) {
+                        gl_PointSize = 0.0;
+                        gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+                        vBrightness = 0.0;
+                        return;
+                    }
+
+                    vec4 clipPos = projectionMatrix * mvPosition;
+
+                    // 镜头外粒子不渲染：投影后超出屏幕范围（留1.5倍边距给大粒子光晕）
+                    if (clipPos.w > 0.0 && (
+                        clipPos.x < -1.5 * clipPos.w || clipPos.x > 1.5 * clipPos.w ||
+                        clipPos.y < -1.5 * clipPos.w || clipPos.y > 1.5 * clipPos.w
+                    )) {
+                        gl_PointSize = 0.0;
+                        gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+                        vBrightness = 0.0;
+                        return;
+                    }
+
+                    float flicker = 0.5 + 0.5 * (0.5 + 0.5 * sin(uTime * aSpeed + aPhase));
+                    vBrightness = flicker;
+                    gl_PointSize = aBaseSize * flicker * uPixelRatio * (150.0 / -mvPosition.z);
+                    gl_PointSize = clamp(gl_PointSize, 0.5, 8.0);
+                    gl_Position = clipPos;
+                }
+            `,
+            fragmentShader: `
+                varying float vBrightness;
+
+                void main() {
+                    float dist = length(gl_PointCoord - vec2(0.5));
+                    if (dist > 0.5) discard;
+                    float glow = smoothstep(0.5, 0.0, dist);
+                    float core = smoothstep(0.1, 0.0, dist);
+                    float alpha = (glow * 0.3 + core * 0.7) * vBrightness;
+                    vec3 warmWhite = vec3(1.0, 0.97, 0.95);
+                    vec3 coolBlue = vec3(0.8, 0.9, 1.0);
+                    vec3 color = mix(coolBlue, warmWhite, vBrightness);
+                    gl_FragColor = vec4(color * 1.5, alpha);
+                }
+            `,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+
+        this.stars = new THREE.Points(geometry, material);
+        this.scene.add(this.stars);
     }
     
     loadModel() {
@@ -843,6 +727,9 @@ class ModelViewer {
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(renderWidth, renderHeight);
             this.applyCanvasClip(offsetX, offsetY);
+            if (this.stars) {
+                this.stars.material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 1.5);
+            }
         });
 
         // 使用平滑滚动控制器的目标滚动回调（无缓动，立即响应）
@@ -1020,13 +907,6 @@ class ModelViewer {
             if (this.isVisible) {
                 this.isVisible = false;
                 this.canvas.classList.add('hidden');
-                // 停止星空动画
-                if (this.starField) {
-                    this.starField.setVisible(false);
-                }
-                // 隐藏星空canvas
-                document.getElementById('starfield').style.opacity = '0';
-                document.getElementById('starfield').style.transition = 'opacity 0.8s ease';
                 // 显示内容区域粒子
                 if (this.contentParticles) {
                     this.contentParticles.setVisible(true);
@@ -1036,10 +916,6 @@ class ModelViewer {
             if (!this.isVisible) {
                 this.isVisible = true;
                 this.canvas.classList.remove('hidden');
-                document.getElementById('starfield').style.opacity = '1';
-                if (this.starField) {
-                    this.starField.setVisible(true);
-                }
                 if (!this.animationId) {
                     this.animate();
                 }
@@ -1054,18 +930,9 @@ class ModelViewer {
                 const opacity = 1 - fadeProgress;
                 this.canvas.style.opacity = Math.max(0, opacity);
 
-                // 同步调整星空透明度
-                const starfield = document.getElementById('starfield');
-                if (starfield) {
-                    starfield.style.opacity = Math.max(0, opacity);
-                }
             } else if (scrollY <= fadeStart) {
                 // 缓冲区外，完全显示
                 this.canvas.style.opacity = '1';
-                const starfield = document.getElementById('starfield');
-                if (starfield) {
-                    starfield.style.opacity = '1';
-                }
             }
         }
     }
@@ -1112,9 +979,9 @@ class ModelViewer {
         // 根据缓冲进度驱动模型动画
         this.updateAnimationByScroll(bufferedProgress);
 
-        // 同步更新星空视角
-        if (this.starField) {
-            this.starField.setCameraRotation(this.targetCameraHeight * 0.3, this.targetCameraAngle);
+        // 更新星空粒子闪烁时间
+        if (this.stars) {
+            this.stars.material.uniforms.uTime.value = performance.now() * 0.001;
         }
 
         this.renderer.render(this.scene, this.camera);
@@ -5338,12 +5205,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     initMusicPlayer();
 
-    const starField = new StarField();
     const contentParticles = new ContentParticles();
 
     const scrollController = new SmoothScrollController();
 
-    new ModelViewer(starField, contentParticles, scrollController);
+    new ModelViewer(contentParticles, scrollController);
     new ScrollReveal();
     new SkillAnimation();
 

@@ -19,17 +19,6 @@ body.loading-active {
     overflow: hidden;
 }
 
-/* 鏄熺┖鑳屾櫙Canvas */
-#starfield {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-}
-
 /* 3D妯″瀷Canvas */
 #model-canvas {
     position: fixed;
