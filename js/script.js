@@ -2209,8 +2209,8 @@ function checkAllLoaded() {
     targetProgress = totalProgress;
     animateProgress();
 
-    // 放宽条件：只要模型加载完成或整体进度达到100%就允许完成
-    if (isInHeroSection && !isModelLoaded && totalProgress < 100) return;
+    // Hero区域必须等待模型真实加载完成后才允许放行
+    if (isInHeroSection && !isModelLoaded) return;
 
     const elapsedTime = Date.now() - loadingStartTime;
     if (totalProgress >= 100 && !isAllLoaded && elapsedTime >= MIN_LOADING_TIME) {
