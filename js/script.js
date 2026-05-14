@@ -2121,33 +2121,33 @@ function animateProgress() {
 }
 
 /**
- * 检测资源是否已缓存
- * 通过发送HEAD请求并检查响应头判断
+ * 检测资源是否已通过HTTP缓存可用
+ * 使用fetch快速探测，不加时间戳避免破坏缓存
  * @param {string} url - 资源URL
- * @returns {Promise<boolean>} 是否已缓存
+ * @returns {Promise<boolean>} 是否可从缓存快速获取
  */
 async function checkResourceCached(url) {
     try {
-        const cached = await caches.open('asset-cache-v1').then(cache => {
-            return cache.match(url);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 500);
+
+        const start = performance.now();
+        const response = await fetch(url, {
+            method: 'GET',
+            signal: controller.signal,
+            headers: { 'Range': 'bytes=0-0' }
         }).catch(() => null);
 
-        if (cached) return true;
+        clearTimeout(timeoutId);
+        const elapsed = performance.now() - start;
 
-        if ('connection' in navigator && navigator.connection.saveData) return true;
+        if (response && (response.ok || response.status === 206)) return elapsed < 200;
 
-        const testImg = new Image();
-        const timeout = new Promise(resolve => setTimeout(() => resolve(false), 50));
-        const loaded = new Promise(resolve => {
-            testImg.onload = () => resolve(true);
-            testImg.onerror = () => resolve(false);
-            testImg.src = url + '?_t=' + Date.now();
-        });
+        if (elapsed < 100) return true;
 
-        const result = await Promise.race([loaded, timeout]);
-        return result;
+        return false;
     } catch (error) {
-        console.log('资源缓存检测出错:', error);
+        if (error.name === 'AbortError') return false;
         return false;
     }
 }
