@@ -384,6 +384,7 @@ class ModelViewer {
         
         this.setupLights();
         this.createStars();
+        this.setupPostProcessing();
         
         this.bindEvents();
 
@@ -516,7 +517,7 @@ class ModelViewer {
                         return;
                     }
 
-                    float flicker = 0.5 + 0.5 * (0.5 + 0.5 * sin(uTime * aSpeed + aPhase));
+                    float flicker = 0.6 + 0.4 * (0.5 + 0.5 * sin(uTime * aSpeed + aPhase));
                     vBrightness = flicker;
                     gl_PointSize = aBaseSize * flicker * uPixelRatio * (150.0 / -mvPosition.z);
                     gl_PointSize = clamp(gl_PointSize, 0.5, 8.0);
@@ -529,13 +530,22 @@ class ModelViewer {
                 void main() {
                     float dist = length(gl_PointCoord - vec2(0.5));
                     if (dist > 0.5) discard;
-                    float glow = smoothstep(0.5, 0.0, dist);
-                    float core = smoothstep(0.1, 0.0, dist);
-                    float alpha = (glow * 0.3 + core * 0.7) * vBrightness;
-                    vec3 warmWhite = vec3(1.0, 0.97, 0.95);
-                    vec3 coolBlue = vec3(0.8, 0.9, 1.0);
-                    vec3 color = mix(coolBlue, warmWhite, vBrightness);
-                    gl_FragColor = vec4(color * 1.5, alpha);
+
+                    // 核心光斑 - 极亮锐利
+                    float core = smoothstep(0.08, 0.0, dist);
+                    // 内层辉光
+                    float innerGlow = smoothstep(0.25, 0.0, dist);
+                    // 外层扩散光晕 - 镜头光晕效果
+                    float outerGlow = smoothstep(0.5, 0.1, dist);
+
+                    vec3 coreColor = vec3(1.0) * 3.5;
+                    vec3 glowColor = mix(vec3(0.6, 0.8, 1.0), vec3(1.0, 0.98, 0.95), vBrightness) * 2.2;
+                    vec3 haloColor = vec3(0.4, 0.7, 1.0) * 1.8 * vBrightness;
+
+                    vec3 color = coreColor * core + glowColor * innerGlow + haloColor * outerGlow;
+                    float alpha = (core * 0.9 + innerGlow * 0.35 + outerGlow * 0.15) * vBrightness;
+
+                    gl_FragColor = vec4(color, alpha);
                 }
             `,
             transparent: true,
@@ -545,6 +555,43 @@ class ModelViewer {
 
         this.stars = new THREE.Points(geometry, material);
         this.scene.add(this.stars);
+    }
+
+    /**
+     * 配置Bloom后处理管线 - 镜头光晕效果
+     * 使用UnrealBloomPass为星空粒子和模型添加辉光
+     * 若依赖脚本未加载则自动降级为普通渲染
+     */
+    setupPostProcessing() {
+        try {
+            if (typeof THREE.EffectComposer === 'undefined' ||
+                typeof THREE.RenderPass === 'undefined' ||
+                typeof THREE.UnrealBloomPass === 'undefined') {
+                console.warn('Bloom后处理依赖未就绪，使用普通渲染模式');
+                this.composer = null;
+                return;
+            }
+
+            const renderWidth = this.renderer.domElement.width;
+            const renderHeight = this.renderer.domElement.height;
+
+            this.composer = new THREE.EffectComposer(this.renderer);
+
+            const renderPass = new THREE.RenderPass(this.scene, this.camera);
+            this.composer.addPass(renderPass);
+
+            const bloomPass = new THREE.UnrealBloomPass(
+                new THREE.Vector2(renderWidth, renderHeight),
+                1.2,
+                0.4,
+                0.3
+            );
+            this.bloomPass = bloomPass;
+            this.composer.addPass(bloomPass);
+        } catch (err) {
+            console.warn('Bloom后处理初始化失败，使用普通渲染模式:', err.message);
+            this.composer = null;
+        }
     }
     
     loadModel() {
@@ -576,18 +623,26 @@ class ModelViewer {
                 if (useSimulatedLoading) {
                     return;
                 }
-                
-                // 计算实际加载进度，但限制最大显示进度为99%（直到1.5秒后才显示100%）
-                const actualPercent = Math.floor((progress.loaded / progress.total) * 100);
+
+                // 防止除零错误：当progress.total为0或undefined时使用已加载数据估算
+                let actualPercent = 0;
+                if (progress.total && progress.total > 0) {
+                    actualPercent = Math.floor((progress.loaded / progress.total) * 100);
+                } else {
+                    // 当total未知时，根据已加载数据量估算（假设文件约5MB）
+                    const estimatedTotal = 5 * 1024 * 1024; // 5MB
+                    actualPercent = Math.min(Math.floor((progress.loaded / estimatedTotal) * 100), 95);
+                }
+
                 const elapsedTime = Date.now() - loadingStartTime;
-                
+
                 // 如果还没满1.5秒，限制显示进度
                 let displayPercent = actualPercent;
                 if (elapsedTime < MIN_LOADING_TIME && actualPercent >= 100) {
                     displayPercent = 99;
                 }
-                
-                console.log('加载进度:', actualPercent + '%');
+
+                console.log('模型加载进度:', actualPercent + '%');
                 // 更新加载页面进度
                 updateLoaderProgress(displayPercent);
             },
@@ -729,6 +784,9 @@ class ModelViewer {
             this.applyCanvasClip(offsetX, offsetY);
             if (this.stars) {
                 this.stars.material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 1.5);
+            }
+            if (this.composer) {
+                this.composer.setSize(renderWidth, renderHeight);
             }
         });
 
@@ -984,7 +1042,11 @@ class ModelViewer {
             this.stars.material.uniforms.uTime.value = performance.now() * 0.001;
         }
 
-        this.renderer.render(this.scene, this.camera);
+        if (this.composer) {
+            this.composer.render();
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 }
 
@@ -1596,6 +1658,8 @@ class CareerTagParticleSystem {
 let bgMusic = null;
 let isMusicLoaded = false;
 let musicLoadProgress = 0;
+let musicLoadTimeout = null;  // 音乐加载超时定时器
+const MUSIC_LOAD_TIMEOUT = 8000;  // 音乐加载最大等待时间（8秒）
 let volumeFadeInterval = null;
 let currentTrackIndex = 0;
 let isPlaying = false;
@@ -1819,18 +1883,39 @@ function initMusicPlayer() {
         if (useSimulatedLoading) {
             return;
         }
-        
+
         if (bgMusic.buffered.length > 0) {
             const loaded = bgMusic.buffered.end(0);
             const duration = bgMusic.duration || 1;
-            musicLoadProgress = Math.floor((loaded / duration) * 100);
-            checkAllLoaded();
+            // 防止duration为NaN或Infinity导致异常
+            if (isFinite(duration) && duration > 0) {
+                musicLoadProgress = Math.min(Math.floor((loaded / duration) * 100), 99);
+                checkAllLoaded();
+            }
         }
     });
 
+    // 启动音乐加载超时保护
+    if (!useSimulatedLoading) {
+        musicLoadTimeout = setTimeout(() => {
+            if (!isMusicLoaded && musicLoadProgress < 100) {
+                console.warn('⚠️ 音乐加载超时，强制完成加载（可能网络问题）');
+                musicLoadProgress = 100;
+                isMusicLoaded = true;
+                checkAllLoaded();
+            }
+        }, MUSIC_LOAD_TIMEOUT);
+    }
+
     bgMusic.addEventListener('canplaythrough', function onCanPlay() {
+        // 清除超时定时器
+        if (musicLoadTimeout) {
+            clearTimeout(musicLoadTimeout);
+            musicLoadTimeout = null;
+        }
+
         isMusicLoaded = true;
-        
+
         if (!useSimulatedLoading) {
             musicLoadProgress = 100;
             checkAllLoaded();
@@ -1955,6 +2040,8 @@ let isAllLoaded = false;
 let loadingStartTime = 0;
 let isInHeroSection = true;
 const MIN_LOADING_TIME = 1500;
+const MAX_LOADING_TIMEOUT = 12000;  // 整体加载最大等待时间（12秒）
+let globalLoadingTimeout = null;    // 全局加载超时定时器
 
 // 智能缓存检测相关
 let useSimulatedLoading = false;  // 是否使用模拟加载
@@ -2105,28 +2192,73 @@ function checkAllLoaded() {
 
     let totalProgress;
     if (isInHeroSection) {
-        totalProgress = Math.floor((modelLoadProgress + musicLoadProgress) / 2);
+        // 优化：如果某个资源已完成，给予更高的权重，避免单点卡住
+        const modelWeight = isModelLoaded ? 0.7 : 0.3;
+        const musicWeight = isMusicLoaded ? 0.7 : 0.3;
+        totalProgress = Math.floor(modelLoadProgress * modelWeight + musicLoadProgress * musicWeight);
+
+        // 如果任一资源已完全加载，至少保证50%进度
+        if (isModelLoaded || isMusicLoaded) {
+            totalProgress = Math.max(totalProgress, 50);
+        }
     } else {
         totalProgress = musicLoadProgress;
     }
     loaderProgress = totalProgress;
-    
+
     targetProgress = totalProgress;
     animateProgress();
 
-    if (isInHeroSection && !isModelLoaded) return;
+    // 放宽条件：只要模型加载完成或整体进度达到100%就允许完成
+    if (isInHeroSection && !isModelLoaded && totalProgress < 100) return;
 
     const elapsedTime = Date.now() - loadingStartTime;
     if (totalProgress >= 100 && !isAllLoaded && elapsedTime >= MIN_LOADING_TIME) {
+        clearGlobalLoadingTimeout();
         isAllLoaded = true;
         completeLoading();
     } else if (totalProgress >= 100 && !isAllLoaded) {
+        clearGlobalLoadingTimeout();
         isAllLoaded = true;
         const remainingTime = MIN_LOADING_TIME - elapsedTime;
         setTimeout(() => {
             completeLoading();
         }, remainingTime);
     }
+}
+
+/**
+ * 清除全局加载超时定时器
+ */
+function clearGlobalLoadingTimeout() {
+    if (globalLoadingTimeout) {
+        clearTimeout(globalLoadingTimeout);
+        globalLoadingTimeout = null;
+    }
+}
+
+/**
+ * 启动全局加载超时保护
+ * 如果超过最大等待时间仍未完成，强制完成加载
+ */
+function startGlobalLoadingTimeout() {
+    clearGlobalLoadingTimeout();
+    globalLoadingTimeout = setTimeout(() => {
+        if (!isAllLoaded) {
+            console.warn(`⚠️ 整体加载超时（${MAX_LOADING_TIMEOUT/1000}秒），强制完成加载`);
+            console.warn(`当前状态: 模型=${modelLoadProgress}%(${isModelLoaded?'已完成':'加载中'}), 音乐=${musicLoadProgress}%(${isMusicLoaded?'已完成':'加载中'})`);
+
+            // 强制设置所有资源为已完成
+            isModelLoaded = true;
+            isMusicLoaded = true;
+            modelLoadProgress = 100;
+            musicLoadProgress = 100;
+
+            clearGlobalLoadingTimeout();
+            isAllLoaded = true;
+            completeLoading();
+        }
+    }, MAX_LOADING_TIMEOUT);
 }
 
 function updateLoaderProgress(percent) {
@@ -2225,36 +2357,39 @@ function startExpandAnimation() {
 // 模拟加载进度 - 固定1.5秒
 function simulateLoading() {
     // 注意：typeWriterEffect已经在DOMContentLoaded中调用，这里不再重复调用
-    
+
+    // 启动全局加载超时保护（12秒后强制完成）
+    startGlobalLoadingTimeout();
+
     // 先重置进度
     modelLoadProgress = 0;
     musicLoadProgress = 0;
-    
+
     let progress = 0;
     simulationInterval = setInterval(() => {
         const elapsedTime = Date.now() - loadingStartTime;
-        
+
         // 计算应该显示的进度（在1.5秒内从0到100）
         progress = Math.min(Math.floor((elapsedTime / MIN_LOADING_TIME) * 100), 99);
-        
+
         // 如果是模拟加载模式，同时更新模型和音乐的进度
         if (useSimulatedLoading) {
             modelLoadProgress = progress;
             musicLoadProgress = progress;
         }
-        
+
         updateLoaderProgress(progress);
-        
+
         if (elapsedTime >= MIN_LOADING_TIME) {
             clearInterval(simulationInterval);
             simulationInterval = null;
-            
+
             // 如果是模拟加载模式，确保都设为100
             if (useSimulatedLoading) {
                 modelLoadProgress = 100;
                 musicLoadProgress = 100;
             }
-            
+
             updateLoaderProgress(100);
         }
     }, 50); // 每50ms更新一次
