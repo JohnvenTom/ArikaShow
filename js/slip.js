@@ -434,85 +434,129 @@ const photobox = {
     },
 
     /**
-     * 001项目图片列表（相对于slip.html的路径）
+     * 统一项目配置中心
+     * @description 集中管理所有项目的媒体资源、描述信息，消除重复代码，提高可维护性
+     * 每个项目包含：images(图片列表)、media(混合媒体列表)、title(标题)、content(详细描述)
      */
-    project001Images: [
-        './asset/img/001/blender_banner.png',
-        './asset/img/001/MD.png',
-        './asset/img/001/blender_cloth.png',
-        './asset/img/001/blender_cloth2.png'
-    ],
+    projectConfig: {
+        '001': {
+            images: [
+                './asset/img/001/blender_banner.png',
+                './asset/img/001/MD.png',
+                './asset/img/001/blender_cloth.png',
+                './asset/img/001/blender_cloth2.png'
+            ],
+            title: '三维角色动画<br>与服饰物理仿真',
+            content: '使用 Blender + Marvelous Designer 完成角色建模、布料模拟与动画渲染。通过 MMD 动作数据导入，实现角色动画；运用 MD 进行服装设计与物理仿真，模拟真实布料褶皱与飘动效果；最终在 Blender 中完成材质调整、灯光布置与后期合成。'
+        },
+        '006': {
+            images: [
+                './asset/img/006/proj.png',
+                './asset/img/006/proj_01.png',
+                './asset/img/006/proj_02.png',
+                './asset/img/006/real_01.jpg',
+                './asset/img/006/real_02.jpg'
+            ],
+            title: 'DIY校卡<br>PCB 设计',
+            content: '异形 PCB 设计、文创 PCB 开发、丝印排版、外形定制、超薄板设计、嘉立创 EDA、PCB 艺术化设计、硬件文创创作。打造个性化校卡，从原理图设计到 PCB 布局，再到实物打样，完整的硬件创作流程。'
+        },
+        '010': {
+            media: [
+                { type: 'image', src: './asset/img/010/astrbot.png' },
+                { type: 'image', src: './asset/img/010/napcat.png' },
+                { type: 'video', src: './asset/img/010/2026-05-03 19-19-30.mp4' }
+            ],
+            title: 'QQ AI 机器人<br>AstrBot + NapCat',
+            content: '基于 AstrBot 框架与 NapCat 平台二次开发的智能聊天机器人。支持多种 AI 模型接入，实现群聊管理、自动回复、插件扩展等功能。通过 Python 编写自定义插件，对接各大 LLM API，打造个性化的 QQ 群助手体验。'
+        },
+        '014': {
+            images: [
+                './asset/img/014/AE.png',
+                './asset/img/014/PR.png'
+            ],
+            title: 'PR+AE<br>视频制作工作流',
+            content: '熟练使用 PR 完成剪辑、精剪、调色与成片整合，精通 AE 动态特效、片头包装，掌握双软件协同全流程制作。能够高效完成视频项目从素材处理到最终输出的全流程工作。'
+        },
+        '019': {
+            images: [
+                './asset/img/019/EChart.png',
+                './asset/img/019/fin.png',
+                './asset/img/019/flow1.png'
+            ],
+            title: '自动成绩查询Agent',
+            content: '将自然语言问题转化为 MySQL 查询语句，执行后解析分析，生成可视化图表并返回结果。基于 Dify 工作流编排，结合 ECharts 图表渲染，实现智能数据查询与可视化展示。'
+        },
+        '021': {
+            images: [
+                './asset/img/021/fin.jpg',
+                './asset/img/021/mqttx.png',
+                './asset/img/021/thingcloud.png',
+                './asset/img/021/stm32cubeide.jpg'
+            ],
+            title: '超市安防<br>与环境监测物联网系统',
+            content: '基于神龙派开发板 + MQTT 协议，使用 STM32CubeIDE 进行开发,接入 ThingsCloud 的环境监测物联网系统。实现温湿度、CO2、光照度等传感器数据实时上报，支持云端远程控制设备开关，使用 MQTTX 进行消息调试，打造完整的物联网解决方案。'
+        },
+        '022': {
+            images: [
+                './asset/img/022/flow.png',
+                './asset/img/022/ask01.png',
+                './asset/img/022/ask02.png',
+                './asset/img/022/ask03.png'
+            ],
+            title: '智能电商<br>问答助手',
+            content: '基于 Dify 工作流编排的智能客服系统，集成 RAG 检索增强生成技术，实现意图识别、知识库检索、智能回复全流程自动化处理。支持多种问答场景，提供精准的电商咨询服务。'
+        },
+        '023': {
+            images: [
+                './asset/img/023/image.png',
+                './asset/img/023/image01.png',
+                './asset/img/023/image02.png'
+            ],
+            title: '线上交易中台系统',
+            content: '基于微服务架构的 B2C 交易平台，采用前后端分离设计，涵盖商品管理、用户服务、购物车、订单交易、秒杀系统等核心业务模块，并且涵盖AI助手,实现了完整的线上交易流程，能够承受1k+的高并发请求服务。'
+        },
+        '028': {
+            images: [
+                './asset/img/028/orangepi.jpg',
+                './asset/img/028/napcat.jpg',
+                './asset/img/028/rk3399.jpg'
+            ],
+            title: 'ARM Linux<br>嵌入式开发',
+            content: '独立完成香橙派 Prime、RK3399 开发板 Armbian 系统镜像烧录、TF 卡启动、引导配置、SSH 远程登录与网络环境调试，具备 ARM 架构单板机系统部署与基础运维能力。在开发板上部署 NapCat QQ 机器人，实现 ARM 平台的应用开发。'
+        }
+    },
 
     /**
-     * 010项目媒体列表（相对于slip.html的路径）
+     * 检测卡片对应的项目ID
+     * @param {HTMLElement} targetCard - 目标卡片元素
+     * @param {HTMLImageElement} img - 卡片中的图片元素
+     * @returns {string|null} 项目ID（如 '001', '010' 等），未找到返回 null
+     * @description 统一的项目ID检测逻辑，优先检查 data-project 属性，其次从图片路径中提取。
+     * 避免在每个项目中重复编写判断逻辑，提高代码复用性。
      */
-    project010Media: [
-        { type: 'image', src: './asset/img/010/astrbot.png' },
-        { type: 'image', src: './asset/img/010/napcat.png' },
-        { type: 'video', src: './asset/img/010/2026-05-03 19-19-30.mp4' }
-    ],
+    detectProjectId(targetCard, img) {
+        // 1. 优先从 data-project 属性获取
+        const dataProject = targetCard.dataset.project;
+        if (dataProject && this.projectConfig[dataProject]) {
+            return dataProject;
+        }
 
-    /**
-     * 019项目图片列表（相对于slip.html的路径）
-     */
-    project019Images: [
-        './asset/img/019/EChart.png',
-        './asset/img/019/fin.png',
-        './asset/img/019/flow1.png'
-    ],
+        // 2. 从图片路径中提取项目编号（匹配 /img/XXX/ 格式）
+        if (img && img.src) {
+            const match = img.src.match(/\/img\/(\d{3})\//);
+            if (match && this.projectConfig[match[1]]) {
+                return match[1];
+            }
+        }
 
-    /**
-     * 006项目图片列表（相对于slip.html的路径）
-     */
-    project006Images: [
-        './asset/img/006/proj.png',
-        './asset/img/006/proj_01.png',
-        './asset/img/006/proj_02.png',
-        './asset/img/006/real_01.jpg',
-        './asset/img/006/real_02.jpg'
-    ],
-
-    /**
-     * 021项目图片列表（相对于slip.html的路径）
-     */
-    project021Images: [
-        './asset/img/021/fin.jpg',
-        './asset/img/021/mqttx.png',
-        './asset/img/021/thingcloud.png',
-        './asset/img/021/stm32cubeide.jpg'
-    ],
-
-    /**
-     * 022项目图片列表（相对于slip.html的路径）
-     */
-    project022Images: [
-        './asset/img/022/flow.png',
-        './asset/img/022/ask01.png',
-        './asset/img/022/ask02.png',
-        './asset/img/022/ask03.png'
-    ],
-
-    /**
-     * 028项目图片列表（相对于slip.html的路径）
-     */
-    project028Images: [
-        './asset/img/028/orangepi.jpg',
-        './asset/img/028/napcat.jpg',
-        './asset/img/028/rk3399.jpg'
-    ],
-
-    /**
-     * 014项目图片列表（相对于slip.html的路径）
-     */
-    project014Images: [
-        './asset/img/014/AE.png',
-        './asset/img/014/PR.png'
-    ],
+        // 3. 未找到配置
+        return null;
+    },
 
     /**
      * 放大指定卡片
      * @param {HTMLElement} targetCard - 要放大的卡片元素
-     * @description 创建覆盖层显示放大的卡片，001项目支持多图滑动浏览
+     * @description 创建覆盖层显示放大的卡片，支持多图滑动浏览（配置驱动）
      */
     expandCard(targetCard) {
         if (this.is_expanded) return;
@@ -529,15 +573,9 @@ const photobox = {
         const label = targetCard.querySelector('.card-label');
         const index = targetCard.querySelector('.card-index');
 
-        // 判断是否是001项目、010项目、019项目、021项目、006项目、022项目或028项目（根据图片路径或data-project属性）
-        const isProject001 = img && img.src.includes('001');
-        const isProject010 = targetCard.dataset.project === '010' || (img && img.src.includes('010'));
-        const isProject014 = targetCard.dataset.project === '014' || (img && img.src.includes('014'));
-        const isProject019 = img && img.src.includes('019');
-        const isProject021 = targetCard.dataset.project === '021' || (img && img.src.includes('021'));
-        const isProject006 = targetCard.dataset.project === '006' || (img && img.src.includes('006'));
-        const isProject022 = targetCard.dataset.project === '022' || (img && img.src.includes('022'));
-        const isProject028 = targetCard.dataset.project === '028' || (img && img.src.includes('028'));
+        // 通过配置查找项目ID（统一逻辑，消除重复判断）
+        const projectId = this.detectProjectId(targetCard, img);
+        const config = this.projectConfig[projectId];
 
         // 创建覆盖层
         this.overlay = document.createElement('div');
@@ -554,32 +592,17 @@ const photobox = {
             expandedCard.appendChild(corner);
         });
 
-        if (isProject001) {
-            // 001项目：创建图片滑动器
-            this.createImageSlider(expandedCard, this.project001Images, label, index, '001');
-        } else if (isProject010) {
-            // 010项目：创建媒体滑动器
-            this.createMediaSlider(expandedCard, this.project010Media, label, index, '010');
-        } else if (isProject014) {
-            // 014项目：创建图片滑动器
-            this.createImageSlider(expandedCard, this.project014Images, label, index, '014');
-        } else if (isProject019) {
-            // 019项目：创建图片滑动器
-            this.createImageSlider(expandedCard, this.project019Images, label, index, '019');
-        } else if (isProject021) {
-            // 021项目：创建图片滑动器
-            this.createImageSlider(expandedCard, this.project021Images, label, index, '021');
-        } else if (isProject006) {
-            // 006项目：创建图片滑动器
-            this.createImageSlider(expandedCard, this.project006Images, label, index, '006');
-        } else if (isProject022) {
-            // 022项目：创建图片滑动器
-            this.createImageSlider(expandedCard, this.project022Images, label, index, '022');
-        } else if (isProject028) {
-            // 028项目：创建图片滑动器
-            this.createImageSlider(expandedCard, this.project028Images, label, index, '028');
+        // 根据配置创建对应的展示器（图片/媒体/单图）
+        if (config) {
+            if (config.media) {
+                // 包含媒体（图片+视频混合）
+                this.createMediaSlider(expandedCard, config.media, label, index, projectId);
+            } else if (config.images && config.images.length > 0) {
+                // 纯图片列表
+                this.createImageSlider(expandedCard, config.images, label, index, projectId);
+            }
         } else {
-            // 其他项目：单图显示
+            // 未配置的项目：单图显示
             const expandedImg = document.createElement('img');
             expandedImg.src = img ? img.src : '';
             expandedImg.alt = '';
@@ -672,48 +695,13 @@ const photobox = {
         // 添加文字介绍区域（渐变透明背景）
         const description = document.createElement('div');
         description.className = 'image-description';
-        
-        // 根据项目ID设置不同的介绍内容
-        const projectDescriptions = {
-            '001': {
-                title: '三维角色动画<br>与服饰物理仿真',
-                content: '使用 Blender + Marvelous Designer 完成角色建模、布料模拟与动画渲染。通过 MMD 动作数据导入，实现角色动画；运用 MD 进行服装设计与物理仿真，模拟真实布料褶皱与飘动效果；最终在 Blender 中完成材质调整、灯光布置与后期合成。'
-            },
-            '010': {
-                title: 'QQ AI 机器人<br>AstrBot + NapCat',
-                content: '基于 AstrBot 框架与 NapCat 平台二次开发的智能聊天机器人。支持多种 AI 模型接入，实现群聊管理、自动回复、插件扩展等功能。通过 Python 编写自定义插件，对接各大 LLM API，打造个性化的 QQ 群助手体验。'
-            },
-            '014': {
-                title: 'PR+AE<br>视频制作工作流',
-                content: '熟练使用 PR 完成剪辑、精剪、调色与成片整合，精通 AE 动态特效、片头包装，掌握双软件协同全流程制作。能够高效完成视频项目从素材处理到最终输出的全流程工作。'
-            },
-            '019': {
-                title: '自动成绩查询Agent',
-                content: '将自然语言问题转化为 MySQL 查询语句，执行后解析分析，生成可视化图表并返回结果。基于 Dify 工作流编排，结合 ECharts 图表渲染，实现智能数据查询与可视化展示。'
-            },
-            '021': {
-                title: '超市安防<br>与环境监测物联网系统',
-                content: '基于神龙派开发板 + MQTT 协议，使用 STM32CubeIDE 进行开发,接入 ThingsCloud 的环境监测物联网系统。实现温湿度、CO2、光照度等传感器数据实时上报，支持云端远程控制设备开关，使用 MQTTX 进行消息调试，打造完整的物联网解决方案。'
-            },
-            '006': {
-                title: 'DIY校卡<br>PCB 设计',
-                content: '异形 PCB 设计、文创 PCB 开发、丝印排版、外形定制、超薄板设计、嘉立创 EDA、PCB 艺术化设计、硬件文创创作。打造个性化校卡，从原理图设计到 PCB 布局，再到实物打样，完整的硬件创作流程。'
-            },
-            '022': {
-                title: '智能电商<br>问答助手',
-                content: '基于 Dify 工作流编排的智能客服系统，集成 RAG 检索增强生成技术，实现意图识别、知识库检索、智能回复全流程自动化处理。支持多种问答场景，提供精准的电商咨询服务。'
-            },
-            '028': {
-                title: 'ARM Linux<br>嵌入式开发',
-                content: '独立完成香橙派 Prime、RK3399 开发板 Armbian 系统镜像烧录、TF 卡启动、引导配置、SSH 远程登录与网络环境调试，具备 ARM 架构单板机系统部署与基础运维能力。在开发板上部署 NapCat QQ 机器人，实现 ARM 平台的应用开发。'
-            }
-        };
-        
-        const desc = projectDescriptions[projectId] || projectDescriptions['001'];
+
+        // 从统一配置中获取项目描述（消除重复定义）
+        const projectDesc = this.projectConfig[projectId] || { title: '项目展示', content: '' };
         description.innerHTML = `
             <div class="description-content">
-                <h3>${desc.title}</h3>
-                <p>${desc.content}</p>
+                <h3>${projectDesc.title}</h3>
+                <p>${projectDesc.content}</p>
             </div>
         `;
         container.appendChild(description);
@@ -949,27 +937,12 @@ const photobox = {
         const description = document.createElement('div');
         description.className = 'image-description';
 
-        // 根据项目ID设置不同的介绍内容
-        const projectDescriptions = {
-            '001': {
-                title: '三维角色动画<br>与服饰物理仿真',
-                content: '使用 Blender + Marvelous Designer 完成角色建模、布料模拟与动画渲染。通过 MMD 动作数据导入，实现角色动画；运用 MD 进行服装设计与物理仿真，模拟真实布料褶皱与飘动效果；最终在 Blender 中完成材质调整、灯光布置与后期合成。'
-            },
-            '010': {
-                title: 'QQ AI 机器人<br>AstrBot + NapCat',
-                content: '基于 AstrBot 框架与 NapCat 平台二次开发的智能聊天机器人。支持多种 AI 模型接入，实现群聊管理、自动回复、插件扩展等功能。通过 Python 编写自定义插件，对接各大 LLM API，打造个性化的 QQ 群助手体验。'
-            },
-            '014': {
-                title: 'PR+AE<br>视频制作工作流',
-                content: '熟练使用 PR 完成剪辑、精剪、调色与成片整合，精通 AE 动态特效、合成与渲染，掌握双软件协同全流程制作。能够高效完成视频项目从素材处理到最终输出的全流程工作。'
-            }
-        };
-
-        const desc = projectDescriptions[projectId] || projectDescriptions['001'];
+        // 从统一配置中获取项目描述（消除重复定义）
+        const projectDesc = this.projectConfig[projectId] || { title: '项目展示', content: '' };
         description.innerHTML = `
             <div class="description-content">
-                <h3>${desc.title}</h3>
-                <p>${desc.content}</p>
+                <h3>${projectDesc.title}</h3>
+                <p>${projectDesc.content}</p>
             </div>
         `;
         container.appendChild(description);
