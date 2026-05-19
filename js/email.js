@@ -191,8 +191,13 @@ document.getElementById('mailForm').addEventListener('submit', function(e) {
     })
     .catch(error => {
         clearTimeout(timeoutId);
-        console.error('发送异常:', error);
-        btn.textContent = '❌ FAILED - RETRY';
+        if (error.name === 'AbortError') {
+            console.warn('请求超时，已自动取消');
+            btn.textContent = '⏳ TIMEOUT - RETRY';
+        } else {
+            console.error('发送异常:', error);
+            btn.textContent = '❌ FAILED - RETRY';
+        }
         btn.style.letterSpacing = '0.2rem';
         btn.style.background = 'rgba(255, 80, 80, 0.15)';
         btn.style.borderColor = 'rgba(255, 100, 100, 0.5)';

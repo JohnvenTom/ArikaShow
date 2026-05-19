@@ -592,11 +592,14 @@ const photobox = {
             expandedCard.appendChild(corner);
         });
 
-        // 根据配置创建对应的展示器（统一使用createSlider）
+        // 根据配置创建对应的展示器（图片/媒体/单图）
         if (config) {
-            const mediaList = config.media || config.images;
-            if (mediaList && mediaList.length > 0) {
-                this.createSlider(expandedCard, mediaList, label, index, projectId, { customCursor });
+            if (config.media) {
+                // 包含媒体（图片+视频混合）
+                this.createMediaSlider(expandedCard, config.media, label, index, projectId);
+            } else if (config.images && config.images.length > 0) {
+                // 纯图片列表
+                this.createImageSlider(expandedCard, config.images, label, index, projectId);
             }
         } else {
             // 未配置的项目：单图显示
@@ -653,128 +656,47 @@ const photobox = {
     },
 
     /**
-     * 媒体渲染策略接口
-     * @description 定义媒体渲染器的标准接口，支持图片、视频等不同媒体类型
-     */
-    mediaRenderers: {
-        image: (media) => {
-            const img = document.createElement('img');
-            img.alt = `图片`;
-            img.src = media.src;
-            return img;
-        },
-        
-        video: (media, options = {}) => {
-            const { slideIndex, customCursor } = options;
-            
-            const videoContainer = document.createElement('div');
-            videoContainer.className = 'video-container';
-            
-            const video = document.createElement('video');
-            video.src = media.src;
-            video.controls = false;
-            video.autoplay = false;
-            video.loop = false;
-            video.dataset.slideIndex = slideIndex;
-            videoContainer.appendChild(video);
-            
-            const playBtn = document.createElement('div');
-            playBtn.className = 'custom-play-btn';
-            playBtn.innerHTML = '▶';
-            videoContainer.appendChild(playBtn);
-            
-            playBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (video.paused) {
-                    video.play();
-                    playBtn.style.opacity = '0';
-                    playBtn.style.pointerEvents = 'none';
-                }
-            });
-            
-            video.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (video.paused) {
-                    video.play();
-                    playBtn.style.opacity = '0';
-                    playBtn.style.pointerEvents = 'none';
-                } else {
-                    video.pause();
-                    playBtn.style.opacity = '1';
-                    playBtn.style.pointerEvents = 'auto';
-                }
-            });
-            
-            video.addEventListener('ended', () => {
-                playBtn.style.opacity = '1';
-                playBtn.style.pointerEvents = 'auto';
-            });
-            
-            playBtn.addEventListener('mouseenter', () => {
-                playBtn.style.background = 'rgba(0, 240, 255, 0.4)';
-                playBtn.style.boxShadow = '0 0 30px rgba(0, 240, 255, 0.6)';
-                playBtn.style.transform = 'scale(1.1)';
-            });
-            playBtn.addEventListener('mouseleave', () => {
-                playBtn.style.background = 'rgba(0, 240, 255, 0.2)';
-                playBtn.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.4)';
-                playBtn.style.transform = 'scale(1)';
-            });
-            
-            if (customCursor && customCursor.setupVideoCursor) {
-                customCursor.setupVideoCursor(video, videoContainer);
-            }
-            
-            return videoContainer;
-        }
-    },
-
-    /**
-     * 统一的滑动器创建函数
+     * 创建图片滑动器
      * @param {HTMLElement} container - 容器元素
-     * @param {Array} mediaList - 媒体列表（可以是图片路径数组或媒体对象数组）
+     * @param {Array} images - 图片路径数组
      * @param {HTMLElement} labelEl - 标签元素
      * @param {HTMLElement} indexEl - 索引元素
-     * @param {string} projectId - 项目ID
-     * @param {Object} options - 额外选项 { customCursor: object }
+     * @param {string} projectId - 项目ID（001或010等）
      */
-    createSlider(container, mediaList, labelEl, indexEl, projectId = '001', options = {}) {
-        const { customCursor } = options;
-        
-        const normalizedMediaList = mediaList.map(media => {
-            if (typeof media === 'string') {
-                return { type: 'image', src: media };
-            }
-            return media;
-        });
-        
+    createImageSlider(container, images, labelEl, indexEl, projectId = '001') {
+        // 创建滑动容器
         const slider = document.createElement('div');
         slider.className = 'image-slider';
-        
+
+        // 创建视口
         const viewport = document.createElement('div');
         viewport.className = 'image-slider-viewport';
-        
+
+        // 添加所有图片（独立容器）
         const slides = [];
-        
-        normalizedMediaList.forEach((media, i) => {
+
+        images.forEach((src, i) => {
             const slide = document.createElement('div');
             slide.className = 'image-slide';
             if (i === 0) slide.classList.add('active');
-            
-            const renderer = this.mediaRenderers[media.type] || this.mediaRenderers.image;
-            const mediaElement = renderer(media, { slideIndex: i, customCursor });
-            
-            slide.appendChild(mediaElement);
+
+            const img = document.createElement('img');
+            img.alt = `图片 ${i + 1}`;
+            img.src = src;
+
+            slide.appendChild(img);
             viewport.appendChild(slide);
             slides.push(slide);
         });
-        
+
         slider.appendChild(viewport);
         container.appendChild(slider);
-        
+
+        // 添加文字介绍区域（渐变透明背景）
         const description = document.createElement('div');
         description.className = 'image-description';
-        
+
+        // 从统一配置中获取项目描述（消除重复定义）
         const projectDesc = this.projectConfig[projectId] || { title: '项目展示', content: '' };
         description.innerHTML = `
             <div class="description-content">
@@ -783,20 +705,22 @@ const photobox = {
             </div>
         `;
         container.appendChild(description);
-        
+
+        // 添加左右箭头
         const prevArrow = document.createElement('div');
         prevArrow.className = 'slider-arrow prev';
         prevArrow.innerHTML = '◄';
         container.appendChild(prevArrow);
-        
+
         const nextArrow = document.createElement('div');
         nextArrow.className = 'slider-arrow next';
         nextArrow.innerHTML = '►';
         container.appendChild(nextArrow);
-        
+
+        // 添加指示器
         const indicators = document.createElement('div');
         indicators.className = 'slider-indicators';
-        normalizedMediaList.forEach((_, i) => {
+        images.forEach((_, i) => {
             const dot = document.createElement('div');
             dot.className = 'slider-indicator';
             if (i === 0) dot.classList.add('active');
@@ -804,19 +728,264 @@ const photobox = {
             indicators.appendChild(dot);
         });
         container.appendChild(indicators);
-        
+
+        // 添加标签
         const expandedLabel = document.createElement('span');
         expandedLabel.className = 'card-label';
         expandedLabel.textContent = labelEl ? labelEl.textContent : '';
         container.appendChild(expandedLabel);
-        
+
+        // 添加索引
         const expandedIndex = document.createElement('span');
         expandedIndex.className = 'card-index';
-        expandedIndex.textContent = `1 / ${normalizedMediaList.length}`;
+        expandedIndex.textContent = `1 / ${images.length}`;
         container.appendChild(expandedIndex);
-        
+
+        // 滑动逻辑
         let currentIndex = 0;
-        
+
+        const updateSlider = () => {
+            // 更新所有slide的状态
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i === currentIndex) {
+                    slide.classList.add('active');
+                } else if (i < currentIndex) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            // 更新指示器
+            indicators.querySelectorAll('.slider-indicator').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
+            });
+            // 更新索引显示
+            expandedIndex.textContent = `${currentIndex + 1} / ${images.length}`;
+        };
+
+        const goToSlide = (index) => {
+            currentIndex = Math.max(0, Math.min(index, images.length - 1));
+            updateSlider();
+        };
+
+        const nextSlide = () => {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateSlider();
+        };
+
+        const prevSlide = () => {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateSlider();
+        };
+
+        // 箭头点击事件
+        nextArrow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextSlide();
+        });
+        prevArrow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            prevSlide();
+        });
+
+        // 键盘导航
+        const keyHandler = (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            }
+        };
+        document.addEventListener('keydown', keyHandler);
+
+        // 保存清理函数
+        this.sliderCleanup = () => {
+            document.removeEventListener('keydown', keyHandler);
+        };
+    },
+
+    /**
+     * 创建媒体滑动器（支持图片和视频混合）
+     * @param {HTMLElement} container - 容器元素
+     * @param {Array} mediaList - 媒体对象数组，每个对象包含 type 和 src
+     * @param {HTMLElement} labelEl - 标签元素
+     * @param {HTMLElement} indexEl - 索引元素
+     * @param {string} projectId - 项目ID
+     */
+    createMediaSlider(container, mediaList, labelEl, indexEl, projectId = '010') {
+        // 创建滑动容器
+        const slider = document.createElement('div');
+        slider.className = 'image-slider';
+
+        // 创建视口
+        const viewport = document.createElement('div');
+        viewport.className = 'image-slider-viewport';
+
+        // 添加所有媒体（独立容器）
+        const slides = [];
+        let currentVideo = null; // 跟踪当前播放的视频
+
+        mediaList.forEach((media, i) => {
+            const slide = document.createElement('div');
+            slide.className = 'image-slide';
+            if (i === 0) slide.classList.add('active');
+
+            if (media.type === 'video') {
+                // 创建视频容器
+                const videoContainer = document.createElement('div');
+                videoContainer.className = 'video-container';
+                videoContainer.style.position = 'relative';
+                videoContainer.style.display = 'flex';
+                videoContainer.style.justifyContent = 'center';
+                videoContainer.style.alignItems = 'center';
+                videoContainer.style.width = '100%';
+                videoContainer.style.height = '100%';
+
+                // 创建视频元素
+                const video = document.createElement('video');
+                video.src = media.src;
+                video.controls = false;
+                video.autoplay = false;
+                video.loop = false;
+                video.dataset.slideIndex = i;
+                videoContainer.appendChild(video);
+
+                // 创建自定义播放按钮
+                const playBtn = document.createElement('div');
+                playBtn.className = 'custom-play-btn';
+                playBtn.innerHTML = '▶';
+                playBtn.style.position = 'absolute';
+                playBtn.style.width = '80px';
+                playBtn.style.height = '80px';
+                playBtn.style.borderRadius = '50%';
+                playBtn.style.background = 'rgba(0, 240, 255, 0.2)';
+                playBtn.style.border = '2px solid rgba(0, 240, 255, 0.8)';
+                playBtn.style.color = '#00f0ff';
+                playBtn.style.fontSize = '32px';
+                playBtn.style.display = 'flex';
+                playBtn.style.justifyContent = 'center';
+                playBtn.style.alignItems = 'center';
+                playBtn.style.cursor = 'pointer';
+                playBtn.style.transition = 'all 0.3s ease';
+                playBtn.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.4)';
+                playBtn.style.zIndex = '10';
+                playBtn.style.backdropFilter = 'blur(4px)';
+                videoContainer.appendChild(playBtn);
+
+                // 播放按钮点击事件
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (video.paused) {
+                        video.play();
+                        playBtn.style.opacity = '0';
+                        playBtn.style.pointerEvents = 'none';
+                    }
+                });
+
+                // 视频点击暂停/播放
+                video.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (video.paused) {
+                        video.play();
+                        playBtn.style.opacity = '0';
+                        playBtn.style.pointerEvents = 'none';
+                    } else {
+                        video.pause();
+                        playBtn.style.opacity = '1';
+                        playBtn.style.pointerEvents = 'auto';
+                    }
+                });
+
+                // 视频结束显示播放按钮
+                video.addEventListener('ended', () => {
+                    playBtn.style.opacity = '1';
+                    playBtn.style.pointerEvents = 'auto';
+                });
+
+                // 悬停效果
+                playBtn.addEventListener('mouseenter', () => {
+                    playBtn.style.background = 'rgba(0, 240, 255, 0.4)';
+                    playBtn.style.boxShadow = '0 0 30px rgba(0, 240, 255, 0.6)';
+                    playBtn.style.transform = 'scale(1.1)';
+                });
+                playBtn.addEventListener('mouseleave', () => {
+                    playBtn.style.background = 'rgba(0, 240, 255, 0.2)';
+                    playBtn.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.4)';
+                    playBtn.style.transform = 'scale(1)';
+                });
+
+                // 设置视频鼠标悬停监听
+                customCursor.setupVideoCursor(video, videoContainer);
+
+                slide.appendChild(videoContainer);
+            } else {
+                // 创建图片元素
+                const img = document.createElement('img');
+                img.alt = `图片 ${i + 1}`;
+                img.src = media.src;
+                slide.appendChild(img);
+            }
+
+            viewport.appendChild(slide);
+            slides.push(slide);
+        });
+
+        slider.appendChild(viewport);
+        container.appendChild(slider);
+
+        // 添加文字介绍区域（渐变透明背景）
+        const description = document.createElement('div');
+        description.className = 'image-description';
+
+        // 从统一配置中获取项目描述（消除重复定义）
+        const projectDesc = this.projectConfig[projectId] || { title: '项目展示', content: '' };
+        description.innerHTML = `
+            <div class="description-content">
+                <h3>${projectDesc.title}</h3>
+                <p>${projectDesc.content}</p>
+            </div>
+        `;
+        container.appendChild(description);
+
+        // 添加左右箭头
+        const prevArrow = document.createElement('div');
+        prevArrow.className = 'slider-arrow prev';
+        prevArrow.innerHTML = '◄';
+        container.appendChild(prevArrow);
+
+        const nextArrow = document.createElement('div');
+        nextArrow.className = 'slider-arrow next';
+        nextArrow.innerHTML = '►';
+        container.appendChild(nextArrow);
+
+        // 添加指示器
+        const indicators = document.createElement('div');
+        indicators.className = 'slider-indicators';
+        mediaList.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'slider-indicator';
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(i));
+            indicators.appendChild(dot);
+        });
+        container.appendChild(indicators);
+
+        // 添加标签
+        const expandedLabel = document.createElement('span');
+        expandedLabel.className = 'card-label';
+        expandedLabel.textContent = labelEl ? labelEl.textContent : '';
+        container.appendChild(expandedLabel);
+
+        // 添加索引
+        const expandedIndex = document.createElement('span');
+        expandedIndex.className = 'card-index';
+        expandedIndex.textContent = `1 / ${mediaList.length}`;
+        container.appendChild(expandedIndex);
+
+        // 滑动逻辑
+        let currentIndex = 0;
+
+        // 暂停所有视频的函数
         const pauseAllVideos = () => {
             slides.forEach(slide => {
                 const videoContainer = slide.querySelector('.video-container');
@@ -834,10 +1003,12 @@ const photobox = {
                 }
             });
         };
-        
+
         const updateSlider = () => {
+            // 暂停所有视频并重置播放按钮
             pauseAllVideos();
-            
+
+            // 更新所有slide的状态
             slides.forEach((slide, i) => {
                 slide.classList.remove('active', 'prev');
                 if (i === currentIndex) {
@@ -846,28 +1017,31 @@ const photobox = {
                     slide.classList.add('prev');
                 }
             });
-            
+
+            // 更新指示器
             indicators.querySelectorAll('.slider-indicator').forEach((dot, i) => {
                 dot.classList.toggle('active', i === currentIndex);
             });
-            expandedIndex.textContent = `${currentIndex + 1} / ${normalizedMediaList.length}`;
+            // 更新索引显示
+            expandedIndex.textContent = `${currentIndex + 1} / ${mediaList.length}`;
         };
-        
+
         const goToSlide = (index) => {
-            currentIndex = Math.max(0, Math.min(index, normalizedMediaList.length - 1));
+            currentIndex = Math.max(0, Math.min(index, mediaList.length - 1));
             updateSlider();
         };
-        
+
         const nextSlide = () => {
-            currentIndex = (currentIndex + 1) % normalizedMediaList.length;
+            currentIndex = (currentIndex + 1) % mediaList.length;
             updateSlider();
         };
-        
+
         const prevSlide = () => {
-            currentIndex = (currentIndex - 1 + normalizedMediaList.length) % normalizedMediaList.length;
+            currentIndex = (currentIndex - 1 + mediaList.length) % mediaList.length;
             updateSlider();
         };
-        
+
+        // 箭头点击事件
         nextArrow.addEventListener('click', (e) => {
             e.stopPropagation();
             nextSlide();
@@ -876,7 +1050,8 @@ const photobox = {
             e.stopPropagation();
             prevSlide();
         });
-        
+
+        // 键盘导航
         const keyHandler = (e) => {
             if (e.key === 'ArrowLeft') {
                 prevSlide();
@@ -885,7 +1060,8 @@ const photobox = {
             }
         };
         document.addEventListener('keydown', keyHandler);
-        
+
+        // 保存清理函数
         this.sliderCleanup = () => {
             document.removeEventListener('keydown', keyHandler);
             pauseAllVideos();
@@ -893,7 +1069,6 @@ const photobox = {
     },
 
     /**
-
      * 关闭放大模式
      * @description 恢复所有卡片显示状态，带有平滑的关闭动画和故障效果
      */
