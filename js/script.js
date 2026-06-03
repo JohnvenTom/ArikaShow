@@ -1139,7 +1139,7 @@ class PhysicsTextSystem {
             { text: 'C++', color: '#ffffff', size: 26 },
             { text: 'C#', color: '#00d4ff', size: 26 },
             { text: 'Java', color: '#00d4ff', size: 28 },
-            { text: 'Flutter', color: '#ffffff', size: 26 },
+            { text: 'Kubernetes', color: '#ffffff', size: 26 },
             { text: 'Go', color: '#00d4ff', size: 28 },
             { text: 'Photoshop', color: '#ffffff', size: 26 },
             { text: 'Kotlin', color: '#ffffff', size: 26 },
@@ -1152,13 +1152,21 @@ class PhysicsTextSystem {
             { text: 'Matter.js', color: '#00d4ff', size: 26 },
             { text: 'Blender', color: '#00d4ff', size: 28 },
             { text: 'Node.js', color: '#00d4ff', size: 28 },
-            { text: 'NPM', color: '#00d4ff', size: 26 },
+            { text: 'Npm', color: '#00d4ff', size: 26 },
             { text: 'MySQL', color: '#ffffff', size: 26 },
-            { text: 'PostgreSQL', color: '#ffffff', size: 24 },
+            { text: 'Spring Boot', color: '#ffffff', size: 28 },
+            { text: 'Spring Cloud', color: '#ffffff', size: 28 },
             { text: 'Redis', color: '#00d4ff', size: 26 },
             { text: 'Nginx', color: '#00d4ff', size: 26 },
             { text: 'Docker', color: '#00d4ff', size: 28 },
-            { text: 'Linux', color: '#ffffff', size: 26 }
+            { text: 'ECharts', color: '#00d4ff', size: 24 },
+            { text: 'Dify', color: '#00d4ff', size: 24 },
+            { text: 'Claude Code', color: '#00d4ff', size: 26 },
+            { text: 'Kail', color: '#00d4ff', size: 24 },
+            { text: 'Kafka', color: '#00d4ff', size: 26 },
+            { text: 'RocketMQ', color: '#00d4ff', size: 26 },
+            { text: 'Linux', color: '#ffffff', size: 26 },
+            { text: 'Maven', color: '#ffffff', size: 28 }
         ];
 
         this.bodies = [];
