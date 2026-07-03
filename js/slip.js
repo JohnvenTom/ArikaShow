@@ -479,7 +479,16 @@ const photobox = {
         },
         '017': {
             images: [
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=MintHive%20interest%20social%20platform%20app%20interface%2C%20modern%20UI%20design%20with%20honeycomb%20pattern%2C%20neon%20green%20accent%2C%20dark%20theme%2C%20community%20circles%20network%2C%20AI-powered%20social%20app%20dashboard%2C%20clean%20minimal%20design&image_size=landscape_4_3'
+                './asset/img/017/image01.png',
+                './asset/img/017/image02.png',
+                './asset/img/017/image03.png',
+                './asset/img/017/image04.png',
+                './asset/img/017/image05.png',
+                './asset/img/017/image06.png',
+                './asset/img/017/image07.png',
+                './asset/img/017/image08.png',
+                './asset/img/017/image09.png',
+                './asset/img/017/image10.png'
             ],
             title: 'MintHive<br>兴趣社交圈子',
             content: 'MintHive 是一个融合 AI 智能能力的垂直兴趣社交平台，名字取自 Mint（新鲜志趣）+ Hive（蜂巢聚合），寓意同兴趣爱好者相聚成团。支持兴趣圈子社群、实时评论互动、AI 全链路辅助、双重内容审核等核心能力，打造轻量化、高粘性、垂直化的兴趣交流社区。'
