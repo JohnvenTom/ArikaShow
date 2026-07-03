@@ -477,6 +477,13 @@ const photobox = {
             title: 'PR+AE<br>视频制作工作流',
             content: '熟练使用 PR 完成剪辑、精剪、调色与成片整合，精通 AE 动态特效、片头包装，掌握双软件协同全流程制作。能够高效完成视频项目从素材处理到最终输出的全流程工作。'
         },
+        '017': {
+            images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=MintHive%20interest%20social%20platform%20app%20interface%2C%20modern%20UI%20design%20with%20honeycomb%20pattern%2C%20neon%20green%20accent%2C%20dark%20theme%2C%20community%20circles%20network%2C%20AI-powered%20social%20app%20dashboard%2C%20clean%20minimal%20design&image_size=landscape_4_3'
+            ],
+            title: 'MintHive<br>兴趣社交圈子',
+            content: 'MintHive 是一个融合 AI 智能能力的垂直兴趣社交平台，名字取自 Mint（新鲜志趣）+ Hive（蜂巢聚合），寓意同兴趣爱好者相聚成团。支持兴趣圈子社群、实时评论互动、AI 全链路辅助、双重内容审核等核心能力，打造轻量化、高粘性、垂直化的兴趣交流社区。'
+        },
         '019': {
             images: [
                 './asset/img/019/EChart.png',
